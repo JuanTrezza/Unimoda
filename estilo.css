@@ -1,0 +1,86 @@
+/* Paleta clara y profesional con acentos coloridos */
+:root{
+  --brand: #6f42c1;          /* Violeta profesional */
+  --brand-2: #00bcd4;        /* Cian vibrante */
+  --brand-3: #ff6f61;        /* Coral elegante */
+  --brand-soft: #f3ecff;     /* Fondo suave */
+  --text: #212529;
+}
+
+body{ color: var(--text); }
+
+/* Marca y botones */
+.brand-gradient{
+  background: linear-gradient(90deg, var(--brand), var(--brand-2), var(--brand-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.btn-brand{
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  border: 0;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(111,66,193,.25);
+}
+.btn-brand:hover{
+  filter: brightness(.95);
+  color: #fff;
+}
+.btn-outline-brand{
+  border-color: var(--brand);
+  color: var(--brand);
+}
+.btn-outline-brand:hover{
+  background: var(--brand);
+  color: #fff;
+}
+
+.text-bg-brand-soft{
+  background-color: var(--brand-soft) !important;
+  color: var(--brand);
+}
+
+.bg-brand-soft{
+  background-color: var(--brand-soft);
+}
+
+.link-brand{
+  color: var(--brand);
+}
+.link-brand:hover{
+  color: var(--brand-2);
+}
+
+/* Hero */
+.hero .hero-slide{
+  position: relative;
+  min-height: 70vh;
+  background-position: center;
+  background-size: cover;
+}
+.hero .overlay{
+  position:absolute; inset:0;
+  background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.25));
+}
+
+/* Cards */
+.card-img-top{
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  border-top-left-radius: .75rem;
+  border-top-right-radius: .75rem;
+}
+.card{
+  border-radius: .75rem;
+}
+
+/* Footer */
+.brand-dot{
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block; background: var(--brand);
+  box-shadow: 0 0 0 6px rgba(111,66,193,.12);
+}
+
+/* Utilidades */
+.rounded-4{ border-radius: 1rem !important; }
+.shadow-sm{ box-shadow: 0 .125rem .5rem rgba(0,0,0,.08) !important; }

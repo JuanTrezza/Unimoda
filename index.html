@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unimoda — Moda Femenina</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+
+  <!-- CSS Personalizado -->
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold brand-gradient" href="#">Unimoda</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
+        <li class="nav-item"><a class="btn btn-brand" href="#contacto">Contacto</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- CARRUSEL -->
+<section class="hero">
+  <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+    <div class="carousel-inner">
+
+      <div class="carousel-item active">
+        <div class="hero-slide" style="background-image:url('imagenes/banner.jpg.jpg');">
+          <div class="overlay"></div>
+          <div class="container h-100 d-flex align-items-center">
+            <div class="text-white" data-aos="fade-up">
+              <h1 class="display-5 fw-bold">Nueva Temporada</h1>
+              <p class="lead">Colores y estilos frescos para vos.</p>
+              <a href="productos.html" class="btn btn-brand btn-lg">Ver colección</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="hero-slide" style="background-image:url('imagenes/banner2.jpg.png');">
+          <div class="overlay"></div>
+          <div class="container h-100 d-flex align-items-center">
+            <div class="text-white" data-aos="fade-up">
+              <h2 class="fw-semibold">Elegancia diaria</h2>
+              <p class="lead">Diseños que acompañan tu estilo.</p>
+              <a href="#destacados" class="btn btn-outline-light btn-lg">Ver destacados</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-item">
+        <div class="hero-slide" style="background-image:url('imagenes/banner3.jpg.png');">
+          <div class="overlay"></div>
+          <div class="container h-100 d-flex align-items-center">
+            <div class="text-white" data-aos="fade-up">
+              <h2 class="fw-semibold">Moda Atemporal</h2>
+              <p class="lead">Prendas que combinan con vos.</p>
+              <a href="#nosotros" class="btn btn-light btn-lg">Conocé más</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+</section>
+
+<!-- PRODUCTOS DESTACADOS -->
+<section id="destacados" class="py-5 bg-light">
+  <div class="container text-center">
+    <h2 class="fw-bold" data-aos="fade-up">Productos Destacados</h2>
+    <p class="text-muted mb-4">Nuestra selección recomendada.</p>
+
+    <div class="row g-4">
+
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
+        <div class="card shadow-sm h-100 border-0">
+          <img src="imagenes/blusa-blanca.jpg" class="card-img-top" alt="">
+          <div class="card-body">
+            <h5>Blusa Blanca</h5>
+            <p class="text-muted">$25.000</p>
+            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
+        <div class="card shadow-sm h-100 border-0">
+          <img src="imagenes/campera-jean.webp" class="card-img-top" alt="">
+          <div class="card-body">
+            <h5>Campera Denin</h5>
+            <p class="text-muted">$60.000</p>
+            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
+        <div class="card shadow-sm h-100 border-0">
+          <img src="imagenes/pantalon_cadiz.jpg" class="card-img-top" alt="">
+          <div class="card-body">
+            <h5>Pantalón Cadiz</h5>
+            <p class="text-muted">$30.000</p>
+            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
+        <div class="card shadow-sm h-100 border-0">
+          <img src="imagenes/mono_huacas.jpg" class="card-img-top" alt="">
+          <div class="card-body">
+            <h5>Mono Huacas</h5>
+            <p class="text-muted">$50.000</p>
+            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <a href="productos.html" class="btn btn-brand btn-lg mt-4">Ver más productos</a>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros" class="py-5">
+  <div class="container d-flex flex-column flex-lg-row align-items-center gap-4">
+    <img src="imagenes/sobrenosotros.jpg.png" class="img-fluid rounded-4 shadow-sm" style="max-width:500px" data-aos="fade-right">
+    <div data-aos="fade-left">
+      <h3 class="fw-bold">Sobre Unimoda</h3>
+      <p class="text-muted">En Unimoda creemos que la moda es una forma de expresión única y personal. Diseñamos y seleccionamos prendas que combinan estilo, comodidad y calidad, pensadas para acompañarte en todos los momentos de tu día. Nuestro objetivo es ofrecerte una experiencia de compra cercana, cuidada y confiable, con una propuesta actual y versátil que se adapta a vos. Cada colección está inspirada en mujeres reales, con personalidad, fuerza y sensibilidad. Queremos que al vestir Unimoda te sientas vos misma, auténtica y segura, porque la moda empieza desde adentro.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto" class="py-5 bg-light">
+  <div class="container" data-aos="fade-up">
+    <h3 class="fw-bold mb-3 text-center">Contacto</h3>
+    <form class="mx-auto" style="max-width:600px;">
+      <input class="form-control mb-3" type="text" placeholder="Nombre">
+      <input class="form-control mb-3" type="email" placeholder="Email">
+      <textarea class="form-control mb-3" rows="4" placeholder="Mensaje"></textarea>
+      <button class="btn btn-brand w-100">Enviar</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="text-center py-4 border-top bg-white">
+  © <span id="y"></span> Unimoda — Todos los derechos reservados
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>AOS.init(); document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
+</html>
+
