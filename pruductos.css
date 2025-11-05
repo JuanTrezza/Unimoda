@@ -1,3 +1,11 @@
+:root{
+  --brand: #6f42c1;          /* Violeta profesional */
+  --brand-2: #00bcd4;        /* Cian vibrante */
+  --brand-3: #ff6f61;        /* Coral elegante */
+  --brand-soft: #f3ecff;     /* Fondo suave */
+  --text: #212529;
+}
+
 .product-card img {
   aspect-ratio: 4/5;
   object-fit: cover;
