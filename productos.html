@@ -3,7 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Productos | Unimoda</title>
+  
+  <!-- SEO Meta Tags -->
+  <title>Productos | Unimoda - Moda Femenina Moderna</title>
+  <meta name="description" content="Explorá nuestra colección completa de moda femenina. Blusas, vestidos, pantalones, camperas y más. Envío gratis en compras mayores a $50.000" />
+  <meta name="keywords" content="productos moda, ropa mujer online, comprar vestidos, blusas femeninas, pantalones mujer" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>👗</text></svg>" />
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -22,45 +29,173 @@
 </head>
 <body>
 
-<!-- NAV igual al index -->
-<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold brand-gradient" href="index.html">Unimoda</a>
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+    <a class="navbar-brand fw-bold brand-gradient d-flex align-items-center" href="index.html">
+      <i class="bi bi-shop me-2 fs-4"></i>
+      <span class="logo-text">Unimoda</span>
+    </a>
+    <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#nav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="nav" class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link active" href="productos.html">Productos</a></li>
-        <li class="nav-item"><a class="btn btn-brand" href="contacto.html">Contacto</a></li>
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item">
+          <a class="nav-link nav-link-custom" href="index.html">
+            <i class="bi bi-house-door me-1"></i>Inicio
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link nav-link-custom active" href="productos.html">
+            <i class="bi bi-bag me-1"></i>Productos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-brand px-4" href="contacto.html">
+            <i class="bi bi-envelope me-1"></i>Contacto
+          </a>
+        </li>
       </ul>
     </div>
   </div>
 </nav>
 
 <!-- TÍTULO -->
-<header class="py-5 text-center">
+<header class="products-header py-5 text-center bg-gradient">
   <div class="container" data-aos="fade-up">
-    <h1 class="fw-bold">Nuestra Colección</h1>
-    <p class="text-muted">Elegí las prendas que mejor se adaptan a vos</p>
+    <span class="badge bg-white text-brand mb-3 px-4 py-2">Temporada 2024</span>
+    <h1 class="fw-bold display-4 mb-3 text-white">Nuestra Colección</h1>
+    <p class="lead text-white mb-0">Elegí las prendas que mejor se adaptan a tu estilo</p>
   </div>
 </header>
 
 <!-- PRODUCTOS -->
 <section class="py-5 bg-light">
   <div class="container">
-    <div class="row g-4">
+    
+    <!-- Buscador y Vista -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="search-box">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="productSearch" class="form-control form-control-lg" placeholder="Buscar productos...">
+        </div>
+      </div>
+      <div class="col-md-4 text-end d-flex align-items-center justify-content-end gap-2">
+        <span class="text-muted small me-2">Vista:</span>
+        <button class="btn btn-outline-brand btn-sm view-btn active" data-view="grid">
+          <i class="bi bi-grid-3x3-gap"></i>
+        </button>
+        <button class="btn btn-outline-brand btn-sm view-btn" data-view="list">
+          <i class="bi bi-list-ul"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-3">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+              <label class="form-label small fw-semibold mb-1">Categoría</label>
+              <select class="form-select">
+                <option selected>Todas</option>
+                <option>Blusas</option>
+                <option>Camperas</option>
+                <option>Pantalones</option>
+                <option>Vestidos</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-semibold mb-1">Talle</label>
+              <select class="form-select">
+                <option selected>Todos</option>
+                <option>XS</option>
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+                <option>XL</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-semibold mb-1">Precio</label>
+              <select class="form-select">
+                <option selected>Todos</option>
+                <option>Menor a $30.000</option>
+                <option>$30.000 - $50.000</option>
+                <option>Mayor a $50.000</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-semibold mb-1">Ordenar por</label>
+              <select class="form-select">
+                <option selected>Más reciente</option>
+                <option>Menor precio</option>
+                <option>Mayor precio</option>
+                <option>Más popular</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contador de Resultados -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <p class="text-muted mb-0">
+        <i class="bi bi-bag-check me-1"></i>
+        Mostrando <strong id="productCount">6</strong> productos
+      </p>
+      <div class="d-flex gap-2">
+        <span class="badge bg-brand-soft text-brand">Envío gratis +$50.000</span>
+        <span class="badge bg-success-subtle text-success">12 cuotas sin interés</span>
+      </div>
+    </div>
+
+    <div class="row g-4" id="productsGrid">
 
       <!-- PRODUCTO 1 -->
       <div class="col-12 col-sm-6 col-lg-4" data-aos="fade-up">
         <div class="card product-card shadow-sm h-100">
-          <img src="imagenes/blusa-blanca.jpg" class="card-img-top" alt="">
+          <div class="product-image-wrapper">
+            <img src="imagenes/blusa-blanca.jpg" class="card-img-top" alt="Blusa Blanca">
+            <div class="product-overlay">
+              <button class="btn btn-light btn-sm rounded-circle me-2 wishlist-btn" title="Agregar a favoritos">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button class="btn btn-light btn-sm rounded-circle quick-view-btn" data-product="1" title="Vista rápida">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <span class="product-tag">Nuevo</span>
+            <span class="stock-badge in-stock">En Stock</span>
+          </div>
           <div class="card-body">
-            <h5 class="fw-semibold">Blusa blusa-blanca</h5>
-            <p class="small text-muted mb-1">Talles: S - XL</p>
-            <p class="fw-bold fs-5">$25.000</p>
-            <button class="btn btn-brand w-100">Comprar</button>
+            <div class="mb-2">
+              <span class="badge bg-brand-soft text-brand">Blusas</span>
+            </div>
+            <h5 class="fw-semibold mb-2">Blusa Blanca</h5>
+            <p class="small text-muted mb-2">Elegancia clásica para cualquier ocasión</p>
+            <div class="d-flex align-items-center mb-2">
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <span class="small text-muted ms-2">(48 reseñas)</span>
+            </div>
+            <p class="small text-muted mb-2">Talles: S - XL</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="fw-bold fs-5 mb-0 text-brand">$25.000</p>
+              <button class="btn btn-brand">
+                <i class="bi bi-cart-plus me-1"></i>Comprar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -68,12 +203,41 @@
       <!-- PRODUCTO 2 -->
       <div class="col-12 col-sm-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
         <div class="card product-card shadow-sm h-100">
-          <img src="imagenes/campera-jean.webp" class="card-img-top" alt="">
+          <div class="product-image-wrapper">
+            <img src="imagenes/campera-jean.webp" class="card-img-top" alt="Campera Denim">
+            <div class="product-overlay">
+              <button class="btn btn-light btn-sm rounded-circle me-2">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button class="btn btn-light btn-sm rounded-circle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <span class="product-tag tag-popular">Popular</span>
+          </div>
           <div class="card-body">
-            <h5 class="fw-semibold">Campera Denin</h5>
-            <p class="small text-muted mb-1">Talles: S - XL</p>
-            <p class="fw-bold fs-5">$60.000</p>
-            <button class="btn btn-brand w-100">Comprar</button>
+            <div class="mb-2">
+              <span class="badge bg-brand-soft text-brand">Camperas</span>
+            </div>
+            <h5 class="fw-semibold mb-2">Campera Denim</h5>
+            <p class="small text-muted mb-2">Estilo casual y versátil</p>
+            <div class="d-flex align-items-center mb-2">
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <span class="small text-muted ms-2">(92 reseñas)</span>
+            </div>
+            <p class="small text-muted mb-2">Talles: S - XL</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="fw-bold fs-5 mb-0 text-brand">$60.000</p>
+              <button class="btn btn-brand">
+                <i class="bi bi-cart-plus me-1"></i>Comprar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -81,12 +245,40 @@
       <!-- PRODUCTO 3 -->
       <div class="col-12 col-sm-6 col-lg-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card product-card shadow-sm h-100">
-          <img src="imagenes/pantalon_cadiz.jpg" class="card-img-top" alt="">
+          <div class="product-image-wrapper">
+            <img src="imagenes/pantalon_cadiz.jpg" class="card-img-top" alt="Pantalón Cadiz">
+            <div class="product-overlay">
+              <button class="btn btn-light btn-sm rounded-circle me-2">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button class="btn btn-light btn-sm rounded-circle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
           <div class="card-body">
-            <h5 class="fw-semibold">Pantalón Cadiz</h5>
-            <p class="small text-muted mb-1">Talles: XS - L</p>
-            <p class="fw-bold fs-5">$30.000</p>
-            <button class="btn btn-brand w-100">Comprar</button>
+            <div class="mb-2">
+              <span class="badge bg-brand-soft text-brand">Pantalones</span>
+            </div>
+            <h5 class="fw-semibold mb-2">Pantalón Cadiz</h5>
+            <p class="small text-muted mb-2">Comodidad perfecta todo el día</p>
+            <div class="d-flex align-items-center mb-2">
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star"></i>
+              </div>
+              <span class="small text-muted ms-2">(35 reseñas)</span>
+            </div>
+            <p class="small text-muted mb-2">Talles: XS - L</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="fw-bold fs-5 mb-0 text-brand">$30.000</p>
+              <button class="btn btn-brand">
+                <i class="bi bi-cart-plus me-1"></i>Comprar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -94,12 +286,41 @@
       <!-- PRODUCTO 4 -->
       <div class="col-12 col-sm-6 col-lg-4" data-aos="fade-up">
         <div class="card product-card shadow-sm h-100">
-          <img src="imagenes/mono_huacas.jpg" class="card-img-top" alt="">
+          <div class="product-image-wrapper">
+            <img src="imagenes/mono_huacas.jpg" class="card-img-top" alt="Mono Huacas">
+            <div class="product-overlay">
+              <button class="btn btn-light btn-sm rounded-circle me-2">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button class="btn btn-light btn-sm rounded-circle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <span class="product-tag tag-special">Especial</span>
+          </div>
           <div class="card-body">
-            <h5 class="fw-semibold">Mono Huacas</h5>
-            <p class="small text-muted mb-1">Talles: S - XXL</p>
-            <p class="fw-bold fs-5">$50.000</p>
-            <button class="btn btn-brand w-100">Comprar</button>
+            <div class="mb-2">
+              <span class="badge bg-brand-soft text-brand">Monos</span>
+            </div>
+            <h5 class="fw-semibold mb-2">Mono Huacas</h5>
+            <p class="small text-muted mb-2">Look completo y sofisticado</p>
+            <div class="d-flex align-items-center mb-2">
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <span class="small text-muted ms-2">(64 reseñas)</span>
+            </div>
+            <p class="small text-muted mb-2">Talles: S - XXL</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="fw-bold fs-5 mb-0 text-brand">$50.000</p>
+              <button class="btn btn-brand">
+                <i class="bi bi-cart-plus me-1"></i>Comprar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -107,12 +328,40 @@
       <!-- PRODUCTO 5 -->
       <div class="col-12 col-sm-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
         <div class="card product-card shadow-sm h-100">
-          <img src="imagenes/musculosa_ferran.jpg" class="card-img-top" alt="">
+          <div class="product-image-wrapper">
+            <img src="imagenes/musculosa_ferran.jpg" class="card-img-top" alt="Musculosa Ferran">
+            <div class="product-overlay">
+              <button class="btn btn-light btn-sm rounded-circle me-2">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button class="btn btn-light btn-sm rounded-circle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
           <div class="card-body">
-            <h5 class="fw-semibold">Musculosa Ferran</h5>
-            <p class="small text-muted mb-1">Talles: S - XL</p>
-            <p class="fw-bold fs-5">$29.990</p>
-            <button class="btn btn-brand w-100">Comprar</button>
+            <div class="mb-2">
+              <span class="badge bg-brand-soft text-brand">Musculosas</span>
+            </div>
+            <h5 class="fw-semibold mb-2">Musculosa Ferran</h5>
+            <p class="small text-muted mb-2">Frescura para los días de verano</p>
+            <div class="d-flex align-items-center mb-2">
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star"></i>
+              </div>
+              <span class="small text-muted ms-2">(27 reseñas)</span>
+            </div>
+            <p class="small text-muted mb-2">Talles: S - XL</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="fw-bold fs-5 mb-0 text-brand">$29.990</p>
+              <button class="btn btn-brand">
+                <i class="bi bi-cart-plus me-1"></i>Comprar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -120,12 +369,41 @@
       <!-- PRODUCTO 6 -->
       <div class="col-12 col-sm-6 col-lg-4" data-aos="fade-up" data-aos-delay="150">
         <div class="card product-card shadow-sm h-100">
-          <img src="imagenes/vestido-marron.webp" class="card-img-top" alt="">
+          <div class="product-image-wrapper">
+            <img src="imagenes/vestido-marron.webp" class="card-img-top" alt="Vestido Marrón">
+            <div class="product-overlay">
+              <button class="btn btn-light btn-sm rounded-circle me-2">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button class="btn btn-light btn-sm rounded-circle">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <span class="product-tag tag-trend">Tendencia</span>
+          </div>
           <div class="card-body">
-            <h5 class="fw-semibold">Vestido Marron</h5>
-            <p class="small text-muted mb-1">Talles: S - XL</p>
-            <p class="fw-bold fs-5">$42.990</p>
-            <button class="btn btn-brand w-100">Comprar</button>
+            <div class="mb-2">
+              <span class="badge bg-brand-soft text-brand">Vestidos</span>
+            </div>
+            <h5 class="fw-semibold mb-2">Vestido Marrón</h5>
+            <p class="small text-muted mb-2">Elegancia para ocasiones especiales</p>
+            <div class="d-flex align-items-center mb-2">
+              <div class="text-warning small">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <span class="small text-muted ms-2">(81 reseñas)</span>
+            </div>
+            <p class="small text-muted mb-2">Talles: S - XL</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="fw-bold fs-5 mb-0 text-brand">$42.990</p>
+              <button class="btn btn-brand">
+                <i class="bi bi-cart-plus me-1"></i>Comprar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -134,14 +412,275 @@
   </div>
 </section>
 
-<!-- FOOTER igual al index -->
-<footer class="text-center py-4 border-top bg-white">
-  © <span id="y"></span> Unimoda — Todos los derechos reservados
+<!-- Quick View Modal -->
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold">Vista Rápida</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <img id="modalImage" src="" class="img-fluid rounded-3" alt="">
+          </div>
+          <div class="col-md-6">
+            <span class="badge bg-brand-soft text-brand mb-2" id="modalCategory"></span>
+            <h3 class="fw-bold mb-3" id="modalTitle"></h3>
+            <div class="mb-3">
+              <div class="text-warning" id="modalRating"></div>
+            </div>
+            <p class="text-muted mb-3" id="modalDescription"></p>
+            <h4 class="text-brand fw-bold mb-3" id="modalPrice"></h4>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Talle</label>
+              <select class="form-select">
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+                <option>XL</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Cantidad</label>
+              <input type="number" class="form-control" value="1" min="1">
+            </div>
+            <div class="d-grid gap-2">
+              <button class="btn btn-brand btn-lg">
+                <i class="bi bi-cart-plus me-2"></i>Agregar al Carrito
+              </button>
+              <button class="btn btn-outline-brand">
+                <i class="bi bi-heart me-2"></i>Agregar a Favoritos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer-modern py-5 bg-white border-top">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Brand Column -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="fw-bold brand-gradient mb-3">
+          <i class="bi bi-shop me-2"></i>Unimoda
+        </h5>
+        <p class="text-muted small">Moda femenina moderna y elegante. Diseños que combinan estilo, comodidad y calidad para acompañarte en cada momento.</p>
+        <div class="d-flex gap-3 fs-5 mt-3">
+          <a href="#" class="social-link" aria-label="Instagram">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="TikTok">
+            <i class="bi bi-tiktok"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold mb-3">Enlaces Rápidos</h6>
+        <ul class="list-unstyled footer-links">
+          <li><a href="index.html"><i class="bi bi-chevron-right me-1"></i>Inicio</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Productos</a></li>
+          <li><a href="contacto.html"><i class="bi bi-chevron-right me-1"></i>Contacto</a></li>
+          <li><a href="index.html#nosotros"><i class="bi bi-chevron-right me-1"></i>Nosotros</a></li>
+        </ul>
+      </div>
+
+      <!-- Categories -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Categorías</h6>
+        <ul class="list-unstyled footer-links">
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Blusas & Tops</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Pantalones</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Vestidos</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Camperas</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Contacto</h6>
+        <ul class="list-unstyled footer-contact">
+          <li class="mb-2">
+            <i class="bi bi-envelope me-2 text-brand"></i>
+            <small>unimoda.contacto@gmail.com</small>
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-geo-alt me-2 text-brand"></i>
+            <small>Buenos Aires, Argentina</small>
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-clock me-2 text-brand"></i>
+            <small>Lun - Vie: 9:00 - 18:00</small>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start">
+        <small class="text-muted">
+          © <span id="y"></span> Unimoda. Todos los derechos reservados.
+        </small>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
+        <small class="text-muted">
+          Diseñado con <i class="bi bi-heart-fill text-danger"></i> para vos
+        </small>
+      </div>
+    </div>
+  </div>
 </footer>
+
+<!-- Botón Volver Arriba -->
+<button id="scrollTopBtn" class="scroll-top-btn" aria-label="Volver arriba">
+  <i class="bi bi-arrow-up"></i>
+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script>AOS.init(); document.getElementById("y").textContent = new Date().getFullYear();</script>
+<script>
+AOS.init({ duration: 800, once: true });
+document.getElementById("y").textContent = new Date().getFullYear();
+
+// Scroll to Top
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('show', window.scrollY > 300);
+});
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Búsqueda de productos
+const searchInput = document.getElementById('productSearch');
+const productsGrid = document.getElementById('productsGrid');
+const productCount = document.getElementById('productCount');
+const allProducts = Array.from(productsGrid.querySelectorAll('.col-12'));
+
+searchInput.addEventListener('input', (e) => {
+  const searchTerm = e.target.value.toLowerCase();
+  let visibleCount = 0;
+  
+  allProducts.forEach(product => {
+    const title = product.querySelector('h5').textContent.toLowerCase();
+    const description = product.querySelector('.small.text-muted').textContent.toLowerCase();
+    
+    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+      product.style.display = '';
+      visibleCount++;
+    } else {
+      product.style.display = 'none';
+    }
+  });
+  
+  productCount.textContent = visibleCount;
+});
+
+// Vista Grid/List
+const viewBtns = document.querySelectorAll('.view-btn');
+viewBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    viewBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const view = btn.dataset.view;
+    if (view === 'list') {
+      allProducts.forEach(p => {
+        p.classList.remove('col-lg-4');
+        p.classList.add('col-lg-12');
+        p.querySelector('.card').classList.add('flex-row');
+      });
+    } else {
+      allProducts.forEach(p => {
+        p.classList.remove('col-lg-12');
+        p.classList.add('col-lg-4');
+        p.querySelector('.card').classList.remove('flex-row');
+      });
+    }
+  });
+});
+
+// Wishlist
+const wishlistBtns = document.querySelectorAll('.wishlist-btn');
+wishlistBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const icon = btn.querySelector('i');
+    icon.classList.toggle('bi-heart');
+    icon.classList.toggle('bi-heart-fill');
+    
+    if (icon.classList.contains('bi-heart-fill')) {
+      btn.classList.add('text-danger');
+      showToast('¡Agregado a favoritos!');
+    } else {
+      btn.classList.remove('text-danger');
+      showToast('Eliminado de favoritos');
+    }
+  });
+});
+
+// Quick View
+const quickViewBtns = document.querySelectorAll('.quick-view-btn');
+const quickViewModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+
+const products = [
+  { title: 'Blusa Blanca', category: 'Blusas', description: 'Elegancia clásica para cualquier ocasión', price: '$25.000', image: 'imagenes/blusa-blanca.jpg', rating: 4.5 },
+  { title: 'Campera Denim', category: 'Camperas', description: 'Estilo casual y versátil', price: '$60.000', image: 'imagenes/campera-jean.webp', rating: 5 },
+  { title: 'Pantalón Cadiz', category: 'Pantalones', description: 'Comodidad perfecta todo el día', price: '$30.000', image: 'imagenes/pantalon_cadiz.jpg', rating: 4 },
+  { title: 'Mono Huacas', category: 'Monos', description: 'Look completo y sofisticado', price: '$50.000', image: 'imagenes/mono_huacas.jpg', rating: 4.5 },
+  { title: 'Musculosa Ferran', category: 'Musculosas', description: 'Frescura para los días de verano', price: '$29.990', image: 'imagenes/musculosa_ferran.jpg', rating: 4 },
+  { title: 'Vestido Marrón', category: 'Vestidos', description: 'Elegancia para ocasiones especiales', price: '$42.990', image: 'imagenes/vestido-marron.webp', rating: 4.5 }
+];
+
+quickViewBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const productId = parseInt(btn.dataset.product) - 1;
+    const product = products[productId];
+    
+    document.getElementById('modalImage').src = product.image;
+    document.getElementById('modalCategory').textContent = product.category;
+    document.getElementById('modalTitle').textContent = product.title;
+    document.getElementById('modalDescription').textContent = product.description;
+    document.getElementById('modalPrice').textContent = product.price;
+    
+    const stars = Math.floor(product.rating);
+    const hasHalf = product.rating % 1 !== 0;
+    let starsHTML = '';
+    for(let i = 0; i < stars; i++) starsHTML += '<i class="bi bi-star-fill"></i>';
+    if(hasHalf) starsHTML += '<i class="bi bi-star-half"></i>';
+    document.getElementById('modalRating').innerHTML = starsHTML;
+    
+    quickViewModal.show();
+  });
+});
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast-notification';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
+</script>
 
 </body>
 </html>

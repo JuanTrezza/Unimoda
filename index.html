@@ -3,7 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Unimoda — Moda Femenina</title>
+  
+  <!-- SEO Meta Tags -->
+  <title>Unimoda — Moda Femenina Moderna | Ropa de Calidad</title>
+  <meta name="description" content="Descubrí la mejor moda femenina en Unimoda. Ropa moderna, elegante y cómoda. Blusas, vestidos, pantalones y más. Envío a todo el país." />
+  <meta name="keywords" content="moda femenina, ropa mujer, vestidos, blusas, pantalones, moda argentina, ropa online" />
+  <meta name="author" content="Unimoda" />
+  <meta name="robots" content="index, follow" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://unimoda.com/" />
+  <meta property="og:title" content="Unimoda — Moda Femenina Moderna" />
+  <meta property="og:description" content="Descubrí la mejor moda femenina. Diseños únicos que combinan estilo, comodidad y calidad." />
+  <meta property="og:image" content="imagenes/banner.jpg.jpg" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://unimoda.com/" />
+  <meta property="twitter:title" content="Unimoda — Moda Femenina Moderna" />
+  <meta property="twitter:description" content="Descubrí la mejor moda femenina. Diseños únicos que combinan estilo, comodidad y calidad." />
+  <meta property="twitter:image" content="imagenes/banner.jpg.jpg" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>👗</text></svg>" />
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -20,17 +43,33 @@
 <body>
 
 <!-- NAV -->
-<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold brand-gradient" href="#">Unimoda</a>
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+    <a class="navbar-brand fw-bold brand-gradient d-flex align-items-center" href="#">
+      <i class="bi bi-shop me-2 fs-4"></i>
+      <span class="logo-text">Unimoda</span>
+    </a>
+    <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#nav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="nav" class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="productos.html">Productos</a></li>
-        <li class="nav-item"><a class="btn btn-brand" href="contacto.html">Contacto</a></li>
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item">
+          <a class="nav-link nav-link-custom" href="index.html">
+            <i class="bi bi-house-door me-1"></i>Inicio
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link nav-link-custom" href="productos.html">
+            <i class="bi bi-bag me-1"></i>Productos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-brand px-4" href="contacto.html">
+            <i class="bi bi-envelope me-1"></i>Contacto
+          </a>
+        </li>
       </ul>
     </div>
   </div>
@@ -39,6 +78,13 @@
 <!-- CARRUSEL -->
 <section class="hero">
   <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+    <!-- Indicadores -->
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    
     <div class="carousel-inner">
 
       <div class="carousel-item active">
@@ -94,68 +140,288 @@
 <!-- PRODUCTOS DESTACADOS -->
 <section id="destacados" class="py-5 bg-light">
   <div class="container text-center">
-    <h2 class="fw-bold" data-aos="fade-up">Productos Destacados</h2>
-    <p class="text-muted mb-4">Nuestra selección recomendada.</p>
+    <div class="section-header mb-5" data-aos="fade-up">
+      <span class="badge bg-brand-soft text-brand mb-2">Selección Especial</span>
+      <h2 class="fw-bold display-6">Productos Destacados</h2>
+      <p class="text-muted">Descubrí nuestra selección recomendada de la temporada</p>
+    </div>
 
     <div class="row g-4">
 
-      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="imagenes/blusa-blanca.jpg" class="card-img-top" alt="">
-          <div class="card-body">
-            <h5>Blusa Blanca</h5>
-            <p class="text-muted">$25.000</p>
-            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+        <div class="card product-card-featured shadow-sm h-100 border-0">
+          <div class="product-badge">Nuevo</div>
+          <img src="imagenes/blusa-blanca.jpg" class="card-img-top" alt="Blusa Blanca">
+          <div class="card-body text-start">
+            <h5 class="fw-semibold mb-1">Blusa Blanca</h5>
+            <p class="text-muted small mb-2">Elegancia clásica</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="text-brand fw-bold mb-0 fs-5">$25.000</p>
+              <a href="productos.html" class="btn btn-outline-brand btn-sm">Ver más</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="imagenes/campera-jean.webp" class="card-img-top" alt="">
-          <div class="card-body">
-            <h5>Campera Denin</h5>
-            <p class="text-muted">$60.000</p>
-            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="card product-card-featured shadow-sm h-100 border-0">
+          <div class="product-badge">Popular</div>
+          <img src="imagenes/campera-jean.webp" class="card-img-top" alt="Campera Denim">
+          <div class="card-body text-start">
+            <h5 class="fw-semibold mb-1">Campera Denim</h5>
+            <p class="text-muted small mb-2">Estilo casual</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="text-brand fw-bold mb-0 fs-5">$60.000</p>
+              <a href="productos.html" class="btn btn-outline-brand btn-sm">Ver más</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="imagenes/pantalon_cadiz.jpg" class="card-img-top" alt="">
-          <div class="card-body">
-            <h5>Pantalón Cadiz</h5>
-            <p class="text-muted">$30.000</p>
-            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="card product-card-featured shadow-sm h-100 border-0">
+          <div class="product-badge">Tendencia</div>
+          <img src="imagenes/pantalon_cadiz.jpg" class="card-img-top" alt="Pantalón Cadiz">
+          <div class="card-body text-start">
+            <h5 class="fw-semibold mb-1">Pantalón Cadiz</h5>
+            <p class="text-muted small mb-2">Comodidad perfecta</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="text-brand fw-bold mb-0 fs-5">$30.000</p>
+              <a href="productos.html" class="btn btn-outline-brand btn-sm">Ver más</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up">
-        <div class="card shadow-sm h-100 border-0">
-          <img src="imagenes/mono_huacas.jpg" class="card-img-top" alt="">
-          <div class="card-body">
-            <h5>Mono Huacas</h5>
-            <p class="text-muted">$50.000</p>
-            <a href="productos.html" class="btn btn-outline-brand">Ver más</a>
+      <div class="col-12 col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="card product-card-featured shadow-sm h-100 border-0">
+          <div class="product-badge">Especial</div>
+          <img src="imagenes/mono_huacas.jpg" class="card-img-top" alt="Mono Huacas">
+          <div class="card-body text-start">
+            <h5 class="fw-semibold mb-1">Mono Huacas</h5>
+            <p class="text-muted small mb-2">Look completo</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="text-brand fw-bold mb-0 fs-5">$50.000</p>
+              <a href="productos.html" class="btn btn-outline-brand btn-sm">Ver más</a>
+            </div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <a href="productos.html" class="btn btn-brand btn-lg mt-4">Ver más productos</a>
+    <a href="productos.html" class="btn btn-brand btn-lg mt-5 px-5" data-aos="fade-up">
+      <i class="bi bi-grid-3x3-gap me-2"></i>Ver toda la colección
+    </a>
   </div>
 </section>
 
 <!-- NOSOTROS -->
 <section id="nosotros" class="py-5">
-  <div class="container d-flex flex-column flex-lg-row align-items-center gap-4">
-    <img src="imagenes/sobrenosotros.jpg.png" class="img-fluid rounded-4 shadow-sm" style="max-width:500px" data-aos="fade-right">
-    <div data-aos="fade-left">
-      <h3 class="fw-bold">Sobre Unimoda</h3>
-      <p class="text-muted">En Unimoda creemos que la moda es una forma de expresión única y personal. Diseñamos y seleccionamos prendas que combinan estilo, comodidad y calidad, pensadas para acompañarte en todos los momentos de tu día. Nuestro objetivo es ofrecerte una experiencia de compra cercana, cuidada y confiable, con una propuesta actual y versátil que se adapta a vos. Cada colección está inspirada en mujeres reales, con personalidad, fuerza y sensibilidad. Queremos que al vestir Unimoda te sientas vos misma, auténtica y segura, porque la moda empieza desde adentro.</p>
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="about-image-wrapper position-relative">
+          <img src="imagenes/sobrenosotros.jpg.png" class="img-fluid rounded-4 shadow-lg" alt="Sobre Unimoda">
+          <div class="about-decoration"></div>
+        </div>
+      </div>
+      <div class="col-lg-6" data-aos="fade-left">
+        <span class="badge bg-brand-soft text-brand mb-3">Nuestra Historia</span>
+        <h3 class="fw-bold display-6 mb-4">Sobre Unimoda</h3>
+        <p class="text-muted mb-3">
+          En <strong class="text-brand">Unimoda</strong> creemos que la moda es una forma de expresión única y personal. Diseñamos y seleccionamos prendas que combinan estilo, comodidad y calidad, pensadas para acompañarte en todos los momentos de tu día.
+        </p>
+        <p class="text-muted mb-3">
+          Nuestro objetivo es ofrecerte una experiencia de compra cercana, cuidada y confiable, con una propuesta actual y versátil que se adapta a vos.
+        </p>
+        <p class="text-muted mb-4">
+          Cada colección está inspirada en mujeres reales, con personalidad, fuerza y sensibilidad. Queremos que al vestir Unimoda te sientas vos misma, auténtica y segura, porque la moda empieza desde adentro.
+        </p>
+        
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <div class="feature-box p-3 rounded-3 bg-light">
+              <i class="bi bi-award fs-2 text-brand mb-2"></i>
+              <h6 class="fw-semibold mb-0">Calidad Premium</h6>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="feature-box p-3 rounded-3 bg-light">
+              <i class="bi bi-truck fs-2 text-brand mb-2"></i>
+              <h6 class="fw-semibold mb-0">Envío Rápido</h6>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="feature-box p-3 rounded-3 bg-light">
+              <i class="bi bi-heart fs-2 text-brand mb-2"></i>
+              <h6 class="fw-semibold mb-0">Diseños Únicos</h6>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="feature-box p-3 rounded-3 bg-light">
+              <i class="bi bi-shield-check fs-2 text-brand mb-2"></i>
+              <h6 class="fw-semibold mb-0">Compra Segura</h6>
+            </div>
+          </div>
+        </div>
+
+        <a href="contacto.html" class="btn btn-brand btn-lg px-4">
+          <i class="bi bi-chat-dots me-2"></i>Contactanos
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section class="benefits-section py-5 bg-brand-soft">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-white text-brand mb-2">¿Por qué elegirnos?</span>
+      <h2 class="fw-bold display-6">Ventajas de comprar en Unimoda</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+        <div class="benefit-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="benefit-icon mb-3">
+            <i class="bi bi-truck fs-1"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Envío Gratis</h5>
+          <p class="text-muted small mb-0">En compras superiores a $50.000</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="benefit-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="benefit-icon mb-3">
+            <i class="bi bi-arrow-repeat fs-1"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Cambios Fáciles</h5>
+          <p class="text-muted small mb-0">30 días para cambios y devoluciones</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="benefit-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="benefit-icon mb-3">
+            <i class="bi bi-credit-card fs-1"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Cuotas Sin Interés</h5>
+          <p class="text-muted small mb-0">Hasta 12 cuotas con tarjeta</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="benefit-card text-center p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="benefit-icon mb-3">
+            <i class="bi bi-headset fs-1"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Atención 24/7</h5>
+          <p class="text-muted small mb-0">Estamos para ayudarte siempre</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section class="testimonials-section py-5">
+  <div class="container">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <span class="badge bg-brand-soft text-brand mb-2">Testimonios</span>
+      <h2 class="fw-bold display-6">Lo que dicen nuestras clientas</h2>
+      <p class="text-muted">Experiencias reales de quienes ya confían en Unimoda</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="0">
+        <div class="testimonial-card p-4 bg-light rounded-4 h-100">
+          <div class="stars mb-3 text-warning">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+          </div>
+          <p class="testimonial-text mb-3">"Excelente calidad y los diseños son hermosos. La atención al cliente es impecable. ¡Super recomendado!"</p>
+          <div class="d-flex align-items-center">
+            <div class="testimonial-avatar me-3">
+              <i class="bi bi-person-circle fs-2 text-brand"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold">María González</h6>
+              <small class="text-muted">Cliente frecuente</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="testimonial-card p-4 bg-light rounded-4 h-100">
+          <div class="stars mb-3 text-warning">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+          </div>
+          <p class="testimonial-text mb-3">"Me encanta la variedad de talles y lo cómodas que son las prendas. El envío llegó súper rápido."</p>
+          <div class="d-flex align-items-center">
+            <div class="testimonial-avatar me-3">
+              <i class="bi bi-person-circle fs-2 text-brand"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold">Laura Fernández</h6>
+              <small class="text-muted">Buenos Aires</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="testimonial-card p-4 bg-light rounded-4 h-100">
+          <div class="stars mb-3 text-warning">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+          </div>
+          <p class="testimonial-text mb-3">"Encontré el vestido perfecto para un evento. La calidad es increíble y el precio muy accesible."</p>
+          <div class="d-flex align-items-center">
+            <div class="testimonial-avatar me-3">
+              <i class="bi bi-person-circle fs-2 text-brand"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold">Sofía Martínez</h6>
+              <small class="text-muted">Córdoba</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section py-5 bg-gradient text-white">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="newsletter-icon mb-3">
+          <i class="bi bi-envelope-heart fs-1"></i>
+        </div>
+        <h2 class="fw-bold mb-3">¡Suscribite a nuestro Newsletter!</h2>
+        <p class="mb-0 opacity-90">Recibí las últimas novedades, ofertas exclusivas y descuentos especiales directamente en tu email.</p>
+      </div>
+      <div class="col-lg-6" data-aos="fade-left">
+        <form class="newsletter-form">
+          <div class="input-group input-group-lg">
+            <input type="email" class="form-control" placeholder="Tu email" aria-label="Email" required>
+            <button class="btn btn-light text-brand fw-bold px-4" type="submit">
+              <i class="bi bi-send me-2"></i>Suscribirme
+            </button>
+          </div>
+          <small class="d-block mt-2 opacity-75">
+            <i class="bi bi-shield-check me-1"></i>No compartimos tu información. Podrás desuscribirte cuando quieras.
+          </small>
+        </form>
+      </div>
     </div>
   </div>
 </section>
@@ -163,13 +429,153 @@
 
 
 <!-- FOOTER -->
-<footer class="text-center py-4 border-top bg-white">
-  © <span id="y"></span> Unimoda — Todos los derechos reservados
+<footer class="footer-modern py-5 bg-white border-top">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Brand Column -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="fw-bold brand-gradient mb-3">
+          <i class="bi bi-shop me-2"></i>Unimoda
+        </h5>
+        <p class="text-muted small">Moda femenina moderna y elegante. Diseños que combinan estilo, comodidad y calidad para acompañarte en cada momento.</p>
+        <div class="d-flex gap-3 fs-5 mt-3">
+          <a href="#" class="social-link" aria-label="Instagram">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="TikTok">
+            <i class="bi bi-tiktok"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold mb-3">Enlaces Rápidos</h6>
+        <ul class="list-unstyled footer-links">
+          <li><a href="index.html"><i class="bi bi-chevron-right me-1"></i>Inicio</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Productos</a></li>
+          <li><a href="contacto.html"><i class="bi bi-chevron-right me-1"></i>Contacto</a></li>
+          <li><a href="#nosotros"><i class="bi bi-chevron-right me-1"></i>Nosotros</a></li>
+        </ul>
+      </div>
+
+      <!-- Categories -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Categorías</h6>
+        <ul class="list-unstyled footer-links">
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Blusas & Tops</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Pantalones</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Vestidos</a></li>
+          <li><a href="productos.html"><i class="bi bi-chevron-right me-1"></i>Camperas</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Contacto</h6>
+        <ul class="list-unstyled footer-contact">
+          <li class="mb-2">
+            <i class="bi bi-envelope me-2 text-brand"></i>
+            <small>unimoda.contacto@gmail.com</small>
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-geo-alt me-2 text-brand"></i>
+            <small>Buenos Aires, Argentina</small>
+          </li>
+          <li class="mb-2">
+            <i class="bi bi-clock me-2 text-brand"></i>
+            <small>Lun - Vie: 9:00 - 18:00</small>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start">
+        <small class="text-muted">
+          © <span id="y"></span> Unimoda. Todos los derechos reservados.
+        </small>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
+        <small class="text-muted">
+          Diseñado con <i class="bi bi-heart-fill text-danger"></i> para vos
+        </small>
+      </div>
+    </div>
+  </div>
 </footer>
+
+<!-- Botón Volver Arriba -->
+<button id="scrollTopBtn" class="scroll-top-btn" aria-label="Volver arriba">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="preloader-content">
+    <div class="spinner"></div>
+    <h4 class="mt-3 brand-gradient fw-bold">Unimoda</h4>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script>AOS.init(); document.getElementById("y").textContent = new Date().getFullYear();</script>
+<script>
+// AOS Init
+AOS.init({
+  duration: 800,
+  once: true,
+  offset: 100
+});
+
+// Year
+document.getElementById("y").textContent = new Date().getFullYear();
+
+// Scroll to Top Button
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 300) {
+    scrollTopBtn.classList.add('show');
+  } else {
+    scrollTopBtn.classList.remove('show');
+  }
+});
+
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// Preloader
+window.addEventListener('load', () => {
+  const preloader = document.getElementById('preloader');
+  setTimeout(() => {
+    preloader.style.opacity = '0';
+    setTimeout(() => {
+      preloader.style.display = 'none';
+    }, 300);
+  }, 800);
+});
+
+// Newsletter Form
+document.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = e.target.querySelector('input[type="email"]').value;
+  alert('¡Gracias por suscribirte! Te enviaremos novedades a: ' + email);
+  e.target.reset();
+});
+</script>
 </body>
 </html>
 
