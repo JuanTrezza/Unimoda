@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { mockSupabase, type SupabaseMock } from './supabase-mock'
 
 /** Recorre la página para disparar las imágenes lazy y verifica que todas carguen sin error. */
 async function expectImagesLoaded(page: Page) {
@@ -30,8 +31,11 @@ async function expectNoHorizontalScroll(page: Page) {
 
 const isMobile = (page: Page) => (page.viewportSize()?.width ?? 0) < 1024
 
+let supabase: SupabaseMock
+
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
+  supabase = await mockSupabase(page)
 })
 
 test('recorrido completo: navegar, filtrar, carrito y favoritos', async ({ page }) => {
@@ -63,6 +67,7 @@ test('recorrido completo: navegar, filtrar, carrito y favoritos', async ({ page 
   await newsletter.getByLabel('Email').fill('ana@mail.com')
   await newsletter.getByRole('button', { name: 'Suscribirme' }).click()
   await expect(page.getByRole('status').filter({ hasText: '¡Listo!' })).toBeVisible()
+  expect(supabase.newsletter).toEqual(['ana@mail.com'])
 
   // Navegar a la tienda
   if (isMobile(page)) {
@@ -207,6 +212,13 @@ test('recorrido completo: navegar, filtrar, carrito y favoritos', async ({ page 
   await page.getByLabel(/Mensaje/).fill('Hola, quería consultar por el talle del vestido.')
   await page.getByRole('button', { name: 'Enviar mensaje' }).click()
   await expect(page.getByRole('heading', { name: '¡Gracias, Ana!' })).toBeVisible()
+  expect(supabase.contactMessages).toEqual([
+    {
+      name: 'Ana Pérez',
+      email: 'ana@mail.com',
+      message: 'Motivo: Consulta sobre un producto\n\nHola, quería consultar por el talle del vestido.',
+    },
+  ])
   await expectNoHorizontalScroll(page)
   await shot(page, '10-contacto')
 
@@ -221,4 +233,58 @@ test('recorrido completo: navegar, filtrar, carrito y favoritos', async ({ page 
   await shot(page, '12-404', false)
 
   expect(errors, 'sin errores en consola').toEqual([])
+})
+
+test('newsletter: un email repetido avisa que ya está suscripta', async ({ page }) => {
+  await page.goto('./')
+  const newsletter = page.getByRole('region', { name: /Novedades, preventas/ })
+  await newsletter.getByLabel('Email').fill('ana@mail.com')
+  await newsletter.getByRole('button', { name: 'Suscribirme' }).click()
+  await expect(page.getByRole('status').filter({ hasText: '¡Listo!' })).toBeVisible()
+  await newsletter.getByLabel('Email').fill('Ana@Mail.com')
+  await newsletter.getByRole('button', { name: 'Suscribirme' }).click()
+  await expect(page.getByRole('status').filter({ hasText: 'Ya estás suscripta' })).toBeVisible()
+  await expect(newsletter.getByText(/No pudimos/)).toHaveCount(0)
+  expect(supabase.newsletter).toEqual(['ana@mail.com'])
+})
+
+test('tienda y producto: error de conexión y reintento', async ({ page }) => {
+  // supabase-js reintenta ~7 s antes de rendirse
+  const RETRIES_TIMEOUT = 15_000
+
+  // Tienda
+  supabase.setOffline(true)
+  await page.goto('./#/tienda')
+  const alert = page.getByRole('alert').filter({ hasText: 'No pudimos cargar los productos' })
+  await expect(alert).toBeVisible({ timeout: RETRIES_TIMEOUT })
+  await expectNoHorizontalScroll(page)
+  await shot(page, '13-tienda-error', false)
+  supabase.setOffline(false)
+  await alert.getByRole('button', { name: 'Reintentar' }).click()
+  await expect(page.getByText('16 productos')).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+
+  // Producto
+  supabase.setOffline(true)
+  await page.goto('./#/producto/trench-gabardina')
+  const productAlert = page.getByRole('alert').filter({ hasText: 'No pudimos cargar esta prenda' })
+  await expect(productAlert).toBeVisible({ timeout: RETRIES_TIMEOUT })
+  supabase.setOffline(false)
+  await productAlert.getByRole('button', { name: 'Reintentar' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Trench de gabardina' })).toBeVisible()
+})
+
+test('búsqueda, filtros y orden se resuelven en la consulta', async ({ page }) => {
+  const requests: string[] = []
+  page.on('request', (r) => r.url().includes('/rest/v1/products') && requests.push(decodeURIComponent(r.url())))
+  await page.goto('./#/tienda?q=lino&orden=precio-desc&talle=S&color=arena&min=50000')
+  await expect(page.getByRole('link', { name: 'Pantalón de lino con cintura elastizada' }).first()).toBeVisible()
+  await expect(page.getByText('1 producto', { exact: true })).toBeVisible()
+  const query = requests.find((u) => u.includes('search_text'))!
+  expect(query).toContain('search_text=ilike.%lino%')
+  expect(query).toContain('order=price_cents.desc')
+  expect(query).toContain('match.size=in.(S)')
+  expect(query).toContain('match.color.slug=in.(arena)')
+  expect(query).toContain('match.stock=gt.0')
+  expect(query).toContain('price_cents=gte.5000000')
 })

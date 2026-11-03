@@ -58,7 +58,7 @@ interface Props {
   fetchPriority?: 'high' | 'auto'
 }
 
-// Medidas reales de las fotos de producto (4:5)
+// Medidas de las fotos de producto (4:5) cuando la imagen no trae las suyas
 const PHOTO_WIDTH = 1024
 const PHOTO_HEIGHT = 1280
 
@@ -74,8 +74,8 @@ export function ProductImage({ image, silhouette, colorHex, className, priority,
       <img
         src={`${import.meta.env.BASE_URL}images/products/${image.file}`}
         alt={image.alt}
-        width={PHOTO_WIDTH}
-        height={PHOTO_HEIGHT}
+        width={image.width ?? PHOTO_WIDTH}
+        height={image.height ?? PHOTO_HEIGHT}
         loading={priority ? 'eager' : 'lazy'}
         fetchPriority={fetchPriority}
         decoding="async"

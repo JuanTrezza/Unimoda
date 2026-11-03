@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CATEGORIES } from '../../data/products'
+import { CATEGORIES } from '../../data/categories'
 import { Icon } from '../ui/Icon'
 
 export function Footer() {

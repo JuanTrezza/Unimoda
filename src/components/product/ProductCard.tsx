@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Product } from '../../types'
+import { imagesForColor } from '../../lib/productImages'
 import { ProductImage } from './ProductImage'
 import { Price } from './Price'
 import { WishlistButton } from './WishlistButton'
@@ -11,7 +12,7 @@ interface Props {
 
 export function ProductCard({ product, priority }: Props) {
   const firstColor = product.colors[0]!
-  const [front, back] = product.images
+  const [front, back] = imagesForColor(product, firstColor.id)
   const soldOut = product.variants.every((v) => v.stock === 0)
 
   return (

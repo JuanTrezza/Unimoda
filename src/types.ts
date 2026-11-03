@@ -35,6 +35,11 @@ export interface ProductImage {
   view: ImageView
   /** Pasar a true cuando la foto esté en public/images/products/ */
   ready: boolean
+  /** Color al que corresponde la foto; sin definir = sirve para todos los colores */
+  colorId?: string
+  /** Medidas reales del archivo (por defecto 1024×1280) */
+  width?: number
+  height?: number
 }
 
 export interface Product {

@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from 'react'
+import { subscribeToNewsletter } from '../services/forms'
 import { toast } from '../store/toast'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -17,11 +18,16 @@ export function Newsletter() {
     if (!EMAIL_RE.test(value)) return setError('Revisá el formato del email (por ejemplo, nombre@mail.com).')
     setError('')
     setSubmitting(true)
-    // Etapa 2: guardar la suscripción en Supabase
-    await new Promise((r) => setTimeout(r, 500))
-    setSubmitting(false)
-    setEmail('')
-    toast('¡Listo! Te vas a enterar primero de las novedades.')
+    try {
+      const result = await subscribeToNewsletter(value)
+      setEmail('')
+      if (result === 'already') toast('Ya estás suscripta.', { tone: 'info' })
+      else toast('¡Listo! Te vas a enterar primero de las novedades.')
+    } catch {
+      setError('No pudimos suscribirte. Revisá tu conexión y probá de nuevo.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (

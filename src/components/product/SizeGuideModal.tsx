@@ -1,4 +1,4 @@
-import { SIZE_GUIDE } from '../../data/products'
+import { SIZE_GUIDE } from '../../data/sizeGuide'
 import { Modal } from '../ui/Modal'
 
 export function SizeGuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {

@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface AsyncState<T> {
   data: T | undefined
   loading: boolean
   error: Error | undefined
+  /** Vuelve a pedir los datos (botón "Reintentar" de los estados de error) */
+  retry: () => void
 }
 
-// Cache en memoria por clave: evita parpadeos al volver a una página ya visitada.
+// Cache en memoria por clave: evita parpadeos al volver a una página ya visitada. Los errores no se cachean.
 const cache = new Map<string, unknown>()
 
 /**
@@ -16,7 +18,8 @@ const cache = new Map<string, unknown>()
  * (útil para filtros: la grilla no vuelve a los esqueletos en cada cambio).
  */
 export function useAsync<T>(key: string, fn: () => Promise<T>, { keepPrevious = false } = {}): AsyncState<T> {
-  const [state, setState] = useState<AsyncState<T>>(() => ({
+  const [attempt, setAttempt] = useState(0)
+  const [state, setState] = useState<Omit<AsyncState<T>, 'retry'>>(() => ({
     data: cache.get(key) as T | undefined,
     loading: !cache.has(key),
     error: undefined,
@@ -44,7 +47,8 @@ export function useAsync<T>(key: string, fn: () => Promise<T>, { keepPrevious = 
       cancelled = true
     }
     // fn cambia en cada render: la clave describe sus dependencias
-  }, [key])
+  }, [key, attempt])
 
-  return state
+  const retry = useCallback(() => setAttempt((n) => n + 1), [])
+  return { ...state, retry }
 }

@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Seo } from '../components/Seo'
 import { Icon } from '../components/ui/Icon'
+import { sendContactMessage } from '../services/forms'
 
 interface FormValues {
   nombre: string
@@ -14,15 +15,20 @@ type Errors = Partial<Record<keyof FormValues, string>>
 const EMPTY: FormValues = { nombre: '', email: '', motivo: '', mensaje: '' }
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+// El motivo viaja dentro del mensaje: la tabla contact_messages guarda name, email y message
+const MAX_MESSAGE = 4900
+
 const MOTIVOS = ['Consulta sobre un producto', 'Estado de mi pedido', 'Cambios y devoluciones', 'Ventas mayoristas', 'Otro']
 
 function validate(v: FormValues): Errors {
   const e: Errors = {}
   if (v.nombre.trim().length < 2) e.nombre = 'Ingresá tu nombre.'
+  else if (v.nombre.trim().length > 100) e.nombre = 'El nombre puede tener hasta 100 caracteres.'
   if (!v.email.trim()) e.email = 'Ingresá tu email.'
   else if (!EMAIL_RE.test(v.email.trim())) e.email = 'Revisá el formato del email (por ejemplo, nombre@mail.com).'
   if (!v.motivo) e.motivo = 'Elegí un motivo.'
   if (v.mensaje.trim().length < 10) e.mensaje = 'Contanos un poco más (mínimo 10 caracteres).'
+  else if (v.mensaje.trim().length > MAX_MESSAGE) e.mensaje = `El mensaje puede tener hasta ${MAX_MESSAGE} caracteres.`
   return e
 }
 
@@ -57,6 +63,7 @@ export function ContactPage() {
   const [errors, setErrors] = useState<Errors>({})
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
   const confirmRef = useRef<HTMLDivElement>(null)
 
@@ -83,11 +90,20 @@ export function ContactPage() {
       return
     }
     setSending(true)
-    // Etapa 2: enviar a Supabase / servicio de email
-    await new Promise((r) => setTimeout(r, 600))
-    setSending(false)
-    setSent(true)
-    requestAnimationFrame(() => confirmRef.current?.focus())
+    setSendError('')
+    try {
+      await sendContactMessage({
+        name: values.nombre,
+        email: values.email,
+        message: `Motivo: ${values.motivo}\n\n${values.mensaje.trim()}`,
+      })
+      setSent(true)
+      requestAnimationFrame(() => confirmRef.current?.focus())
+    } catch {
+      setSendError('No pudimos enviar tu mensaje. Revisá tu conexión y probá de nuevo.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -203,6 +219,11 @@ export function ContactPage() {
               <button type="submit" className="btn-primary w-full sm:w-auto" disabled={sending}>
                 {sending ? 'Enviando…' : 'Enviar mensaje'}
               </button>
+              {sendError && (
+                <p role="alert" className="flex items-center gap-1.5 text-sm text-terracota-dark">
+                  <Icon name="info" size={16} /> {sendError}
+                </p>
+              )}
             </form>
           )}
         </div>

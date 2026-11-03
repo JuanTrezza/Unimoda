@@ -7,19 +7,21 @@ import { ProductGrid } from '../components/product/ProductCard'
 import { QuantityInput } from '../components/product/QuantityInput'
 import { SizeGuideModal } from '../components/product/SizeGuideModal'
 import { WishlistButton } from '../components/product/WishlistButton'
+import { ErrorState } from '../components/ui/ErrorState'
 import { Icon } from '../components/ui/Icon'
 import { useAsync } from '../hooks/useAsync'
 import { getProductBySlug, getRelatedProducts } from '../services/catalog'
 import { MAX_PER_ITEM, useCart } from '../store/cart'
 import { toast } from '../store/toast'
-import { CATEGORIES } from '../data/products'
+import { CATEGORIES } from '../data/categories'
 import { cn, formatPrice, FREE_SHIPPING_FROM } from '../lib/format'
+import { imagesForColor } from '../lib/productImages'
 import type { Product, Size } from '../types'
 import { NotFoundPage } from './NotFoundPage'
 
 export function ProductPage() {
   const { slug = '' } = useParams()
-  const { data: product, loading } = useAsync(`product:${slug}`, () => getProductBySlug(slug))
+  const { data: product, loading, error, retry } = useAsync(`product:${slug}`, () => getProductBySlug(slug))
 
   if (loading) {
     return (
@@ -29,6 +31,13 @@ export function ProductPage() {
           <div className="h-10 w-3/4 animate-pulse rounded bg-crema-200" />
           <div className="h-6 w-1/3 animate-pulse rounded bg-crema-200" />
         </div>
+      </div>
+    )
+  }
+  if (error) {
+    return (
+      <div className="container-site py-10">
+        <ErrorState what="esta prenda" onRetry={retry} />
       </div>
     )
   }
@@ -59,10 +68,11 @@ function ProductDetail({ product }: { product: Product }) {
   const stockFor = (s: Size) => product.variants.find((v) => v.colorId === colorId && v.size === s)?.stock ?? 0
   const maxQty = variant ? Math.min(variant.stock, MAX_PER_ITEM) : MAX_PER_ITEM
 
-  // Si el talle elegido no tiene stock en el nuevo color, se deselecciona
+  // Si el talle elegido no tiene stock en el nuevo color, se deselecciona; la galería vuelve a la primera foto
   useEffect(() => {
     if (size && stockFor(size) === 0) setSize(null)
     setQuantity(1)
+    setActiveImage(0)
   }, [colorId])
 
   const onAdd = () => {
@@ -76,7 +86,9 @@ function ProductDetail({ product }: { product: Product }) {
     openCart()
   }
 
-  const image = product.images[activeImage] ?? product.images[0]!
+  // Fotos del color elegido o, si no tiene, las que sirven para todos los colores
+  const images = useMemo(() => imagesForColor(product, colorId), [product, colorId])
+  const image = images[activeImage] ?? images[0]!
 
   return (
     <div className="pb-20">
@@ -107,9 +119,9 @@ function ProductDetail({ product }: { product: Product }) {
         <section aria-label="Galería de imágenes" className="lg:col-span-7">
           <div className="flex flex-col-reverse gap-3 lg:flex-row">
             {/* Miniaturas solo si hay más de una imagen */}
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <ul className="flex gap-3 lg:w-20 lg:flex-col">
-                {product.images.map((img, i) => (
+                {images.map((img, i) => (
                   <li key={img.file} className="w-20">
                     <button
                       type="button"
@@ -129,7 +141,7 @@ function ProductDetail({ product }: { product: Product }) {
             )}
             <div className="relative aspect-[4/5] flex-1 overflow-hidden rounded-sm bg-crema-200">
               <ProductImage
-                // El placeholder se re-tiñe con el color elegido; la foto real no cambia con el color
+                // El placeholder se re-tiñe con el color elegido; la foto real cambia si el color tiene fotos propias
                 key={image.ready ? image.file : `${image.file}-${color.id}`}
                 image={image}
                 silhouette={product.silhouette}

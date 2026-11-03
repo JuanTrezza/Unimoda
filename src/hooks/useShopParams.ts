@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CATEGORIES } from '../data/products'
+import { CATEGORIES } from '../data/categories'
 import type { CategoryId, ProductQuery, Size, SortOption } from '../types'
 
 const SORTS: SortOption[] = ['relevancia', 'precio-asc', 'precio-desc', 'novedades']

@@ -3,11 +3,12 @@ import { Seo } from '../components/Seo'
 import { ProductGrid } from '../components/product/ProductCard'
 import { Filters } from '../components/shop/Filters'
 import { Drawer } from '../components/ui/Drawer'
+import { ErrorState } from '../components/ui/ErrorState'
 import { Icon } from '../components/ui/Icon'
 import { useAsync } from '../hooks/useAsync'
 import { useShopParams } from '../hooks/useShopParams'
 import { getFilterOptions, getProducts } from '../services/catalog'
-import { CATEGORIES } from '../data/products'
+import { CATEGORIES } from '../data/categories'
 import { formatPrice } from '../lib/format'
 import type { SortOption } from '../types'
 
@@ -41,6 +42,11 @@ export function ShopPage() {
   const category = CATEGORIES.find((c) => c.id === query.category)
   const count = products.data?.length ?? 0
   const refreshing = products.loading && products.data !== undefined
+  const failed = products.error !== undefined || options.error !== undefined
+  const retry = () => {
+    if (products.error) products.retry()
+    if (options.error) options.retry()
+  }
   const title = category?.name ?? (query.search ? `Resultados para “${query.search}”` : 'Tienda')
 
   const chips: { label: string; remove: () => void }[] = []
@@ -156,7 +162,7 @@ export function ShopPage() {
 
           <div className="flex flex-wrap items-center gap-2 py-4">
             <p className="mr-2 text-sm text-tinta-muted" aria-live="polite" aria-atomic="true">
-              {products.loading && !refreshing ? 'Buscando…' : `${count} ${count === 1 ? 'producto' : 'productos'}`}
+              {failed ? '' : products.loading && !refreshing ? 'Buscando…' : `${count} ${count === 1 ? 'producto' : 'productos'}`}
             </p>
             {chips.map((chip) => (
               <button
@@ -177,7 +183,9 @@ export function ShopPage() {
             )}
           </div>
 
-          {products.data && count === 0 ? (
+          {failed ? (
+            <ErrorState what="los productos" onRetry={retry} />
+          ) : products.data && count === 0 ? (
             <div className="flex flex-col items-center rounded-sm bg-crema-200/60 px-6 py-20 text-center">
               <p className="font-serif text-3xl">No encontramos prendas</p>
               <p className="mt-3 max-w-sm text-tinta-soft">

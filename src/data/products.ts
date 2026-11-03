@@ -1,13 +1,10 @@
-import type { Category, Color, ImageView, Product, Silhouette, Size, Variant } from '../types'
+/**
+ * Fuente de datos del seed (scripts/generate-seed.ts) y de los mocks de los tests.
+ * La app ya no importa este archivo: el catálogo se lee de Supabase (src/services/catalog.ts).
+ */
+import type { Color, ImageView, Product, Silhouette, Size, Variant } from '../types'
 
-export const CATEGORIES: Category[] = [
-  { id: 'vestidos', name: 'Vestidos', description: 'Siluetas fluidas para el día y la noche.' },
-  { id: 'blusas', name: 'Blusas y tops', description: 'Básicos nobles y camisas con caída.' },
-  { id: 'pantalones', name: 'Pantalones', description: 'Sastrería relajada y denim de todos los días.' },
-  { id: 'faldas', name: 'Faldas', description: 'Largos midi y texturas que se mueven.' },
-  { id: 'abrigos', name: 'Abrigos', description: 'Capas para el entretiempo y el invierno.' },
-  { id: 'tejidos', name: 'Tejidos', description: 'Punto suave, hilados cálidos.' },
-]
+export { CATEGORIES } from './categories'
 
 export const COLORS = {
   negro: { id: 'negro', name: 'Negro', hex: '#1F1B18' },
@@ -376,12 +373,3 @@ const SEEDS: ProductSeed[] = [
 ]
 
 export const PRODUCTS: Product[] = SEEDS.map(build)
-
-/** Tabla de talles (en centímetros). */
-export const SIZE_GUIDE: { size: Size; busto: string; cintura: string; cadera: string }[] = [
-  { size: 'XS', busto: '80–84', cintura: '62–66', cadera: '88–92' },
-  { size: 'S', busto: '84–88', cintura: '66–70', cadera: '92–96' },
-  { size: 'M', busto: '88–94', cintura: '70–76', cadera: '96–102' },
-  { size: 'L', busto: '94–100', cintura: '76–82', cadera: '102–108' },
-  { size: 'XL', busto: '100–106', cintura: '82–88', cadera: '108–114' },
-]

@@ -23,14 +23,20 @@ export function useCartLines() {
   useEffect(() => {
     let cancelled = false
     const ids = idsKey ? idsKey.split('|') : []
-    getVariantsByIds(ids).then((list) => {
-      if (cancelled) return
-      setResolved(new Map(list.map((r) => [r.variant.id, r])))
-      setLoading(false)
-      // Variantes que ya no existen en el catálogo se sacan del carrito
-      const found = new Set(list.map((r) => r.variant.id))
-      ids.filter((id) => !found.has(id)).forEach(remove)
-    })
+    getVariantsByIds(ids).then(
+      (list) => {
+        if (cancelled) return
+        setResolved(new Map(list.map((r) => [r.variant.id, r])))
+        setLoading(false)
+        // Variantes que ya no existen en el catálogo se sacan del carrito
+        const found = new Set(list.map((r) => r.variant.id))
+        ids.filter((id) => !found.has(id)).forEach(remove)
+      },
+      // Sin conexión no se toca el carrito: se reintenta cuando cambia
+      () => {
+        if (!cancelled) setLoading(false)
+      },
+    )
     return () => {
       cancelled = true
     }
