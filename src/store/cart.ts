@@ -18,6 +18,7 @@ interface CartState {
   close: () => void
 }
 
+// Igual que max_quantity en private.checkout_rules() (supabase/migrations/0004)
 export const MAX_PER_ITEM = 10
 
 export const useCart = create<CartState>()(

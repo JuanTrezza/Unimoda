@@ -44,7 +44,7 @@ const PRODUCT_SELECT = `
   category:categories!inner(slug),
   colors:product_colors!product_colors_product_id_fkey(id, slug, name, hex, sort_order),
   images:product_images(color_id, view, path, width, height, alt, sort_order),
-  variants(color_id, size, sku, stock)
+  variants(id, color_id, size, sku, stock)
 `
 
 interface ProductRow {
@@ -71,7 +71,7 @@ interface ProductRow {
     alt: string
     sort_order: number
   }[]
-  variants: { color_id: number; size: Size; sku: string; stock: number }[]
+  variants: { id: number; color_id: number; size: Size; sku: string; stock: number }[]
 }
 
 interface CategoryRow {
@@ -111,6 +111,7 @@ function toProduct(row: ProductRow): Product {
     size: v.size,
     colorId: slugById.get(v.color_id) ?? '',
     stock: v.stock,
+    dbId: v.id,
   }))
 
   const images: ProductImage[] = [...row.images]

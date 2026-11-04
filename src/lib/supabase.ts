@@ -11,7 +11,17 @@ if (!url || !key) {
   )
 }
 
-// El sitio no tiene login: sin sesión persistida ni refresco de tokens
+/**
+ * PKCE: los links de los emails vuelven con ?code=… en la query (antes del #), así que no
+ * chocan con las rutas del HashRouter. auth-js canjea el código al iniciar; el resto del
+ * callback (a qué ruta ir, limpiar la URL) lo resuelve src/lib/authRedirect.ts.
+ */
 export const supabase = createClient(url, key, {
-  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  auth: {
+    flowType: 'pkce',
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'unimoda-auth',
+  },
 })

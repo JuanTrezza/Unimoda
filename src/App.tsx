@@ -1,5 +1,6 @@
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
+import { RequireAuth } from './components/auth/RequireAuth'
 import { HomePage } from './pages/HomePage'
 import { ShopPage } from './pages/ShopPage'
 import { ProductPage } from './pages/ProductPage'
@@ -8,8 +9,18 @@ import { WishlistPage } from './pages/WishlistPage'
 import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { LoginPage } from './pages/auth/LoginPage'
+import { SignUpPage } from './pages/auth/SignUpPage'
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
+import { AccountPage } from './pages/account/AccountPage'
+import { OrdersPage } from './pages/account/OrdersPage'
+import { OrderDetailPage } from './pages/account/OrderDetailPage'
+import { CheckoutPage } from './pages/checkout/CheckoutPage'
+import { OrderConfirmationPage } from './pages/checkout/OrderConfirmationPage'
 
-// HashRouter: GitHub Pages no reescribe rutas al index.html
+// HashRouter: GitHub Pages no reescribe rutas al index.html.
+// Los links de los emails de Supabase vuelven a la raíz con ?code=; ver lib/authRedirect.ts.
 export function App() {
   return (
     <HashRouter>
@@ -22,6 +33,17 @@ export function App() {
           <Route path="favoritos" element={<WishlistPage />} />
           <Route path="nosotros" element={<AboutPage />} />
           <Route path="contacto" element={<ContactPage />} />
+          <Route path="ingresar" element={<LoginPage />} />
+          <Route path="crear-cuenta" element={<SignUpPage />} />
+          <Route path="olvide-contrasena" element={<ForgotPasswordPage />} />
+          <Route path="nueva-contrasena" element={<ResetPasswordPage />} />
+          <Route element={<RequireAuth />}>
+            <Route path="cuenta" element={<AccountPage />} />
+            <Route path="cuenta/pedidos" element={<OrdersPage />} />
+            <Route path="cuenta/pedidos/:id" element={<OrderDetailPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="checkout/confirmado/:id" element={<OrderConfirmationPage />} />
+          </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

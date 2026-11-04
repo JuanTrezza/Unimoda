@@ -7,6 +7,7 @@ import { cn, formatPrice, FREE_SHIPPING_FROM } from '../../lib/format'
 import { Icon } from '../ui/Icon'
 import { Drawer } from '../ui/Drawer'
 import { Modal } from '../ui/Modal'
+import { AccountMenu } from './AccountMenu'
 
 const NAV = [
   { to: '/', label: 'Inicio', end: true },
@@ -92,6 +93,7 @@ export function Header() {
               <Icon name="heart" />
               <Badge count={wishCount} />
             </Link>
+            <AccountMenu />
             <button
               type="button"
               className="btn-icon relative -mr-2"

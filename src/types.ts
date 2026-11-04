@@ -21,6 +21,8 @@ export interface Variant {
   size: Size
   colorId: string
   stock: number
+  /** variants.id en la base: lo que se manda a create_order */
+  dbId?: number
 }
 
 /** Silueta usada por el placeholder mientras no haya foto real. */
@@ -89,4 +91,62 @@ export interface ResolvedVariant {
   product: Product
   variant: Variant
   color: Color
+}
+
+export interface Profile {
+  fullName: string
+  phone: string | null
+  email: string
+}
+
+export interface AddressInput {
+  street: string
+  number: string
+  apartment: string | null
+  city: string
+  province: string
+  postalCode: string
+  isDefault: boolean
+}
+
+export interface Address extends AddressInput {
+  id: string
+}
+
+export type OrderStatus = 'pendiente_pago' | 'pagado' | 'enviado' | 'cancelado'
+
+/** Copia de la dirección guardada en el pedido */
+export interface OrderAddress {
+  recipient: string
+  phone: string | null
+  street: string
+  number: string
+  apartment: string | null
+  city: string
+  province: string
+  postalCode: string
+}
+
+export interface OrderItem {
+  id: number
+  variantId: number | null
+  sku: string
+  productName: string
+  colorName: string
+  size: string
+  /** En pesos, copiado al momento de la compra */
+  unitPrice: number
+  quantity: number
+  lineTotal: number
+}
+
+export interface Order {
+  id: string
+  status: OrderStatus
+  subtotal: number
+  shipping: number
+  total: number
+  address: OrderAddress
+  createdAt: string
+  items: OrderItem[]
 }

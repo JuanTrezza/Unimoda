@@ -4,7 +4,6 @@ import { CartLineItem } from '../components/cart/CartLineItem'
 import { FreeShippingBar } from '../components/cart/FreeShippingBar'
 import { Icon } from '../components/ui/Icon'
 import { useCartLines } from '../hooks/useCartLines'
-import { toast } from '../store/toast'
 import { formatPrice, installment, INSTALLMENTS } from '../lib/format'
 
 export function CartPage() {
@@ -71,13 +70,10 @@ export function CartPage() {
               <p className="mt-2 text-xs text-tinta-muted">
                 o {INSTALLMENTS} cuotas sin interés de {installment(total)}
               </p>
-              <button
-                type="button"
-                className="btn-primary mt-6 w-full"
-                onClick={() => toast('El checkout se habilita en la próxima etapa.', { tone: 'info' })}
-              >
+              {/* Sin sesión, RequireAuth manda a Ingresar y vuelve acá con el carrito intacto */}
+              <Link to="/checkout" className="btn-primary mt-6 w-full">
                 Finalizar compra
-              </button>
+              </Link>
               <ul className="mt-6 space-y-2 text-xs text-tinta-soft">
                 <li className="flex items-center gap-2">
                   <Icon name="card" size={16} /> Tarjetas, Mercado Pago y transferencia

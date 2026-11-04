@@ -5,9 +5,19 @@ import '@fontsource-variable/fraunces/opsz-italic.css'
 import '@fontsource-variable/inter'
 import './index.css'
 import { App } from './App'
+import { handleAuthRedirect } from './lib/authRedirect'
+import { listenToSession } from './store/session'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+listenToSession()
+
+// Si venimos de un link de email (?auth=…&code=…), primero se canjea el código y se pasa a la
+// ruta con hash; después se monta el router. En una visita normal no espera nada.
+handleAuthRedirect()
+  .catch(() => undefined)
+  .finally(() => {
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+  })

@@ -33,7 +33,7 @@ docs/FOTOS.md    lista de fotos a producir
 
 ## Decisiones
 
-- **HashRouter**: GitHub Pages no reescribe rutas, así que las URLs son `/Unimoda/#/tienda?categoria=vestidos`.
+- **HashRouter**: GitHub Pages no reescribe rutas, así que las URLs son `/Unimoda/#/tienda?categoria=vestidos`. Los links de los emails de Supabase vuelven a `/Unimoda/?auth=…&code=…` (ver *Autenticación*).
 - **El carrito guarda solo `variantId` y cantidad.** Precio, nombre y stock se leen siempre del catálogo (`useCartLines`).
 - **Filtros en la URL** (`categoria`, `talle`, `color`, `min`, `max`, `orden`, `q`): el link se puede compartir.
 - **Imágenes**: las de producto salen de `product_images` en Supabase; las editoriales, de `src/data/editorial.ts` (`ready`). Donde falta foto se muestra un placeholder en SVG. Ver `docs/FOTOS.md`.
@@ -66,7 +66,8 @@ En el **SQL Editor** de Supabase, pegá y corré cada archivo completo, en este 
 1. `supabase/migrations/0001_catalog.sql`: tablas del catálogo, índices y búsqueda
 2. `supabase/migrations/0002_forms.sql`: newsletter y contacto
 3. `supabase/migrations/0003_rls_and_grants.sql`: permisos y políticas RLS
-4. `supabase/seed.sql`: categorías, productos, colores, imágenes y variantes
+4. `supabase/migrations/0004_auth_orders.sql`: perfiles, direcciones, pedidos, `create_order` y `cancel_order`
+5. `supabase/seed.sql`: categorías, productos, colores, imágenes y variantes
 
 Todos son idempotentes: se pueden volver a correr. El seed hace upsert por `slug` / `sku`, así que
 sirve también para actualizar precios o stock. Al final muestra un conteo de control.
@@ -94,3 +95,51 @@ Para ocultar un producto sin borrarlo: `update products set is_active = false wh
 El workflow lee `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` de los secrets del repo
 (Settings → Secrets and variables → Actions → New repository secret). La publishable key termina
 dentro del bundle público, eso es esperado: la seguridad la dan RLS y los `GRANT`.
+
+## Autenticación
+
+Supabase Auth con email y contraseña, flujo **PKCE** (`src/lib/supabase.ts`). La sesión vive en
+`localStorage` (`unimoda-auth`) y `src/store/session.ts` la refleja para la UI. El carrito es
+independiente de la sesión: no se pierde al ingresar ni al salir.
+
+**Links de los emails con HashRouter** (`src/lib/authRedirect.ts`): con PKCE, Supabase agrega
+`?code=…` a la URL de vuelta. Si esa URL tuviera un `#/ruta`, el `?code=` quedaría detrás del hash y
+el router lo tomaría como parte de la ruta. Por eso `emailRedirectTo` / `redirectTo` apuntan a la raíz
+con un tipo: `https://juantrezza.github.io/Unimoda/?auth=signup` o `?auth=recovery`. Al cargar, antes
+de montar React, se espera a que auth-js canjee el código (`supabase.auth.initialize()`) y se
+reemplaza la URL por la ruta con hash que corresponde (`#/cuenta`, `#/nueva-contrasena`), sin el
+`code` en el historial. Si el link se abre en otro navegador (no está el *code verifier* de PKCE),
+el email igual queda confirmado y se manda a Ingresar con un aviso.
+
+Rutas que piden sesión (`RequireAuth`): `/cuenta`, `/cuenta/pedidos`, `/cuenta/pedidos/:id`,
+`/checkout` y `/checkout/confirmado/:id`. Sin sesión redirigen a `/ingresar?volver=<ruta>`.
+
+## Seguridad
+
+**El precio se calcula en el servidor.** El navegador es del usuario: cualquier cosa que mande se
+puede modificar desde las DevTools. Por eso `create_order` recibe solo `[{variant_id, quantity}]` y
+una dirección; el precio sale de `products.price_cents`, el envío de `private.checkout_rules()` y el
+total se suma en la base. Los montos que muestra el front son solo informativos.
+
+**RLS + GRANT.** El proyecto no expone tablas solo: cada tabla tiene `GRANT` explícitos y políticas
+RLS. Cada usuario ve y edita solo su `profile` y sus `addresses` (`auth.uid() = user_id`) y puede
+*leer* sus `orders` / `order_items`. Nadie desde el cliente puede insertar, editar ni borrar
+`orders`, `order_items` ni `variants`: no hay `GRANT` de escritura.
+
+**Funciones `security definer`.** `create_order` y `cancel_order` corren con los permisos de su
+dueño, por eso pueden escribir pedidos y descontar stock aunque el cliente no pueda. A cambio:
+
+- `set search_path = ''` y todos los nombres calificados (`public.variants`), para que nadie pueda
+  "colar" una tabla o función con el mismo nombre en otro schema;
+- validan todo adentro: sesión (`auth.uid()`), que la dirección o el pedido sean del usuario, forma
+  y límites de `items` (1 a 20 líneas, cantidad 1 a 10, sin repetidos), producto activo y stock;
+- bloquean las variantes con `SELECT … FOR UPDATE` ordenado por id (sin sobreventa ni deadlocks) y
+  hacen todo en una transacción;
+- limitan a 5 pedidos `pendiente_pago` por usuario por hora;
+- `EXECUTE` solo para `authenticated` (revocado a `public` y `anon`).
+
+Las funciones internas viven en el schema `private`, que la Data API no expone.
+
+**Pago simulado.** Los pedidos quedan en `pendiente_pago` y no se cobra nada (proyecto demo). El
+paso a `pagado` va a hacerlo solo un webhook de Mercado Pago desde una Edge Function con
+`service_role` (TODO en `src/services/orders.ts`).
