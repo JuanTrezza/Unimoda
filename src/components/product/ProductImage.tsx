@@ -72,7 +72,7 @@ export function ProductImage({ image, silhouette, colorHex, className, priority,
   if (image.ready) {
     return (
       <img
-        src={`${import.meta.env.BASE_URL}images/products/${image.file}`}
+        src={image.url ?? `${import.meta.env.BASE_URL}images/products/${image.file}`}
         alt={image.alt}
         width={image.width ?? PHOTO_WIDTH}
         height={image.height ?? PHOTO_HEIGHT}

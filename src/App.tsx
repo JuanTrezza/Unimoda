@@ -1,5 +1,7 @@
+import { lazy, Suspense } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
+import { RequireAdmin } from './components/auth/RequireAdmin'
 import { RequireAuth } from './components/auth/RequireAuth'
 import { HomePage } from './pages/HomePage'
 import { ShopPage } from './pages/ShopPage'
@@ -18,6 +20,9 @@ import { OrdersPage } from './pages/account/OrdersPage'
 import { OrderDetailPage } from './pages/account/OrderDetailPage'
 import { CheckoutPage } from './pages/checkout/CheckoutPage'
 import { OrderConfirmationPage } from './pages/checkout/OrderConfirmationPage'
+
+// El panel va en un chunk aparte: los clientes nunca lo descargan
+const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })))
 
 // HashRouter: GitHub Pages no reescribe rutas al index.html.
 // Los links de los emails de Supabase vuelven a la raíz con ?code=; ver lib/authRedirect.ts.
@@ -44,6 +49,16 @@ export function App() {
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="checkout/confirmado/:id" element={<OrderConfirmationPage />} />
           </Route>
+          <Route
+            path="admin/*"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<div className="container-site h-80 py-16" aria-busy="true" />}>
+                  <AdminApp />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

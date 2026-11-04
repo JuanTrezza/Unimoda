@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signOut } from '../../services/account'
-import { useSession } from '../../store/session'
+import { isAdminUser, useSession } from '../../store/session'
 import { toast } from '../../store/toast'
 import { Icon } from '../ui/Icon'
 
@@ -79,6 +79,13 @@ export function AccountMenu() {
               Mis pedidos
             </Link>
           </li>
+          {isAdminUser(user) && (
+            <li>
+              <Link to="/admin" className="flex min-h-11 items-center px-4 text-sm hover:bg-crema-200">
+                Panel de administración
+              </Link>
+            </li>
+          )}
           <li>
             <button
               type="button"

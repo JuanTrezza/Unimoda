@@ -12,6 +12,12 @@ interface SessionState {
 /** Sesión de Supabase Auth. La fuente de verdad es auth-js (localStorage); esto solo la refleja. */
 export const useSession = create<SessionState>()(() => ({ status: 'loading', session: null, user: null }))
 
+/**
+ * El claim viene en app_metadata (solo editable con service_role / SQL). Esto es solo para
+ * la UI: lo que el admin puede hacer de verdad lo decide RLS con private.is_admin().
+ */
+export const isAdminUser = (user: User | null | undefined) => user?.app_metadata?.role === 'admin'
+
 let listening = false
 
 /** Se llama una vez al iniciar la app. El carrito no depende de la sesión: se mantiene al ingresar o salir. */

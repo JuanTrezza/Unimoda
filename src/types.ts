@@ -39,6 +39,8 @@ export interface ProductImage {
   ready: boolean
   /** Color al que corresponde la foto; sin definir = sirve para todos los colores */
   colorId?: string
+  /** URL completa (foto estática o de Storage). Sin definir: images/products/{file} */
+  url?: string
   /** Medidas reales del archivo (por defecto 1024×1280) */
   width?: number
   height?: number

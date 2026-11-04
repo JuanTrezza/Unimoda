@@ -95,6 +95,8 @@ test('registro: validación accesible, confirmación por email y alta directa', 
   // Proyecto sin confirmación de email: entra directo
   await page.getByRole('button', { name: 'Mi cuenta' }).click()
   await page.getByRole('banner').getByRole('button', { name: 'Cerrar sesión' }).click()
+  // Esperar a que termine el signOut (después navega al inicio)
+  await expect(page.getByRole('link', { name: 'Ingresar' })).toBeVisible()
   supabase.confirmEmail = false
   await page.goto('./#/crear-cuenta')
   await page.getByLabel('Nombre y apellido').fill('Lucía Gómez')

@@ -43,7 +43,7 @@ const PRODUCT_SELECT = `
   is_new, popularity, created_at,
   category:categories!inner(slug),
   colors:product_colors!product_colors_product_id_fkey(id, slug, name, hex, sort_order),
-  images:product_images(color_id, view, path, width, height, alt, sort_order),
+  images:product_images(color_id, view, path, width, height, alt, sort_order, source),
   variants(id, color_id, size, sku, stock)
 `
 
@@ -70,6 +70,7 @@ interface ProductRow {
     height: number
     alt: string
     sort_order: number
+    source: 'static' | 'storage'
   }[]
   variants: { id: number; color_id: number; size: Size; sku: string; stock: number }[]
 }
@@ -97,6 +98,15 @@ function normalize(text: string): string {
     .replace(/[̀-ͯ]/g, '')
 }
 
+export const PRODUCT_IMAGES_BUCKET = 'product-images'
+
+/** Fotos estáticas (public/images, en el repo) o subidas desde el panel al bucket product-images */
+export function imageUrl(source: 'static' | 'storage', path: string): string {
+  return source === 'storage'
+    ? supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(path).data.publicUrl
+    : `${import.meta.env.BASE_URL}${path}`
+}
+
 const fromCents = (cents: number) => Math.round(cents / 100)
 const toCents = (pesos: number) => Math.round(pesos * 100)
 
@@ -118,6 +128,7 @@ function toProduct(row: ProductRow): Product {
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((img) => ({
       file: img.path.startsWith(IMAGE_DIR) ? img.path.slice(IMAGE_DIR.length) : img.path,
+      url: imageUrl(img.source, img.path),
       alt: img.alt,
       view: img.view,
       ready: true,
@@ -150,8 +161,10 @@ function toProduct(row: ProductRow): Product {
   }
 }
 
+// is_active explícito: RLS ya oculta los inactivos a los clientes, pero a un admin se los
+// muestra; así el admin ve la tienda igual que cualquiera.
 function products(extraSelect = '') {
-  return supabase.from('products').select(PRODUCT_SELECT + extraSelect)
+  return supabase.from('products').select(PRODUCT_SELECT + extraSelect).eq('is_active', true)
 }
 
 async function fetchProducts(query: PromiseLike<{ data: unknown; error: { message: string } | null }>) {
@@ -254,7 +267,8 @@ export async function getVariantsByIds(variantIds: string[]): Promise<ResolvedVa
   const rows = check<{ sku: string; product: ProductRow }[]>(
     await supabase
       .from('variants')
-      .select(`sku, product:products!inner(${PRODUCT_SELECT})`)
+      .select(`sku, product:products!inner(${PRODUCT_SELECT}, is_active)`)
+      .eq('product.is_active', true)
       .in('sku', skus),
   )
   const bySku = new Map<string, ResolvedVariant>()
@@ -271,10 +285,14 @@ export async function getVariantsByIds(variantIds: string[]): Promise<ResolvedVa
 export async function getFilterOptions(): Promise<FilterOptions> {
   const [categories, colorRows, sizeRows, cheapest, priciest] = await Promise.all([
     getCategories(),
-    supabase.from('product_colors').select('slug, name, hex').order('slug'),
-    supabase.from('variants').select('size'),
-    supabase.from('products').select('price_cents').order('price_cents', { ascending: true }).limit(1),
-    supabase.from('products').select('price_cents').order('price_cents', { ascending: false }).limit(1),
+    supabase
+      .from('product_colors')
+      .select('slug, name, hex, product:products!inner(is_active)')
+      .eq('product.is_active', true)
+      .order('slug'),
+    supabase.from('variants').select('size, product:products!inner(is_active)').eq('product.is_active', true),
+    supabase.from('products').select('price_cents').eq('is_active', true).order('price_cents', { ascending: true }).limit(1),
+    supabase.from('products').select('price_cents').eq('is_active', true).order('price_cents', { ascending: false }).limit(1),
   ])
 
   // product_colors tiene una fila por producto: se deduplica por slug

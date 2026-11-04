@@ -67,7 +67,8 @@ En el **SQL Editor** de Supabase, pegá y corré cada archivo completo, en este 
 2. `supabase/migrations/0002_forms.sql`: newsletter y contacto
 3. `supabase/migrations/0003_rls_and_grants.sql`: permisos y políticas RLS
 4. `supabase/migrations/0004_auth_orders.sql`: perfiles, direcciones, pedidos, `create_order` y `cancel_order`
-5. `supabase/seed.sql`: categorías, productos, colores, imágenes y variantes
+5. `supabase/migrations/0005_admin.sql`: rol admin, políticas del panel, bucket de fotos y funciones del panel
+6. `supabase/seed.sql`: categorías, productos, colores, imágenes y variantes
 
 Todos son idempotentes: se pueden volver a correr. El seed hace upsert por `slug` / `sku`, así que
 sirve también para actualizar precios o stock. Al final muestra un conteo de control.
@@ -143,3 +144,65 @@ Las funciones internas viven en el schema `private`, que la Data API no expone.
 **Pago simulado.** Los pedidos quedan en `pendiente_pago` y no se cobra nada (proyecto demo). El
 paso a `pagado` va a hacerlo solo un webhook de Mercado Pago desde una Edge Function con
 `service_role` (TODO en `src/services/orders.ts`).
+
+> Si volvés a correr una migración anterior (0001, 0003 o 0004 revocan permisos), volvé a correr
+> también las siguientes, en orden.
+
+## Panel de administración
+
+Rutas `/#/admin/*`. El panel es un chunk aparte (`React.lazy`): los clientes nunca lo descargan. Sin
+el claim de admin, `/admin` muestra la página 404, como si no existiera.
+
+### Crear un admin
+
+1. Creá la cuenta normalmente desde el sitio (Crear cuenta) y confirmá el email.
+2. En el SQL Editor:
+
+   ```sql
+   update auth.users
+   set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role": "admin"}'::jsonb
+   where email = 'tu-email@ejemplo.com';
+   ```
+
+3. **Cerrá sesión y volvé a entrar.** El rol viaja dentro del JWT y el token que ya tenías no lo
+   tiene. Para quitarlo: `set raw_app_meta_data = raw_app_meta_data - 'role'`.
+
+### Por qué el rol va en `app_metadata`
+
+`user_metadata` lo puede editar el propio usuario con `supabase.auth.updateUser()`; si el rol
+estuviera ahí, cualquiera podría hacerse admin. `app_metadata` solo se escribe con la
+`service_role` o desde SQL. Supabase lo copia al JWT, así que RLS lo lee sin consultar tablas:
+`private.is_admin()` hace `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'`.
+
+`is_admin()` vive en el schema `private`. Las políticas se evalúan con el rol de quien consulta, por
+eso `anon` y `authenticated` tienen `USAGE` en `private` y `EXECUTE` en esa función, y en ninguna
+otra. No queda expuesta por la API porque la Data API solo publica los schemas de *Exposed schemas*
+(`public`): no existe `/rpc/is_admin`.
+
+El chequeo del front (`isAdminUser`) es solo para la interfaz. Lo que el admin puede hacer de verdad
+lo deciden los `GRANT` a `authenticated` más las políticas RLS con `is_admin()`: un usuario común
+tiene el mismo `GRANT`, pero ninguna política lo deja escribir.
+
+### Qué puede hacer
+
+- **Resumen** (`admin_dashboard()`, calculado en la base): ventas y pedidos del mes (solo pagados y
+  enviados), pendientes de pago, los 5 más vendidos del mes y las variantes con stock ≤ 2.
+- **Productos**: búsqueda y filtro activo / inactivo; alta y edición de los datos, con slug automático
+  y precios en pesos que se guardan en centavos. También colores (con color picker), la grilla de
+  stock color × talle y las fotos por color: subir, ordenar, cambiar la vista y borrar. Desactivar o
+  borrar pide confirmación. Borrar un producto, un color o una foto también borra los archivos de
+  Storage.
+- **Pedidos**: filtro por estado, búsqueda por número y cambio de estado con
+  `admin_set_order_status`. Las transiciones válidas son `pendiente_pago → pagado → enviado`, y
+  `pendiente_pago` o `pagado → cancelado`. Las valida el trigger `orders_status_change`, que también
+  devuelve el stock al cancelar, venga el cambio de donde venga.
+- **Mensajes** y **Suscriptores**: listas paginadas; los suscriptores se exportan a CSV.
+
+### Fotos
+
+Las fotos nuevas van al bucket público `product-images`: 5 MB como máximo, JPEG, WebP o PNG. Solo un
+admin puede subir, reemplazar o borrar (políticas sobre `storage.objects`), y se leen por la URL
+pública. Antes de subir, el navegador las achica a 1600 px de alto como máximo y las convierte a WebP
+con `canvas` (JPEG si el navegador no codifica WebP), y guarda el ancho y el alto reales.
+`product_images.source` distingue las fotos estáticas del repo (`public/images`, las 16 originales)
+de las de Storage: el front arma la URL según el origen.
