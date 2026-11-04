@@ -460,9 +460,9 @@ create policy "product-images: admin borra"
 --
 --   update auth.users
 --   set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role": "admin"}'::jsonb
---   where email = 'jgmorenotrezza@gmail.com';
+--   where email = 'tu-email@ejemplo.com';
 --
 -- Quitarlo:
 --   update auth.users set raw_app_meta_data = raw_app_meta_data - 'role'
---   where email = 'jgmorenotrezza@gmail.com';
+--   where email = 'tu-email@ejemplo.com';
 -- =============================================================================

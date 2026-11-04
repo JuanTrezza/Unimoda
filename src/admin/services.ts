@@ -141,7 +141,7 @@ export async function listAdminProducts(filter: { search?: string; active?: 'tod
       price: fromCents(r.price_cents),
       isActive: r.is_active,
       stock: r.variants.reduce((sum, v) => sum + v.stock, 0),
-      thumb: first ? imageUrl(first.source, first.path) : null,
+      thumb: first ? imageUrl(supabase, first.source, first.path) : null,
     }
   })
 }
@@ -267,7 +267,7 @@ export async function getAdminProduct(id: string): Promise<AdminProduct | undefi
         alt: i.alt,
         sortOrder: i.sort_order,
         source: i.source,
-        url: imageUrl(i.source, i.path),
+        url: imageUrl(supabase, i.source, i.path),
       }))
       .sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id),
     variants: r.variants.map((v) => ({ id: v.id, colorId: v.color_id, size: v.size, sku: v.sku, stock: v.stock })),

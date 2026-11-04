@@ -56,6 +56,8 @@ interface Props {
   priority?: boolean
   /** Solo para la imagen principal (LCP) de la página */
   fetchPriority?: 'high' | 'auto'
+  /** Ancho con el que se muestra, para elegir del srcset */
+  sizes?: string
 }
 
 // Medidas de las fotos de producto (4:5) cuando la imagen no trae las suyas
@@ -66,13 +68,15 @@ const PHOTO_HEIGHT = 1280
  * Muestra la foto real cuando `image.ready` es true; mientras tanto, un placeholder
  * en SVG con la silueta de la prenda teñida con el color elegido.
  */
-export function ProductImage({ image, silhouette, colorHex, className, priority, fetchPriority = 'auto' }: Props) {
+export function ProductImage({ image, silhouette, colorHex, className, priority, fetchPriority = 'auto', sizes }: Props) {
   const gradientId = useId()
 
   if (image.ready) {
     return (
       <img
         src={image.url ?? `${import.meta.env.BASE_URL}images/products/${image.file}`}
+        srcSet={sizes ? image.srcSet : undefined}
+        sizes={sizes && image.srcSet ? sizes : undefined}
         alt={image.alt}
         width={image.width ?? PHOTO_WIDTH}
         height={image.height ?? PHOTO_HEIGHT}

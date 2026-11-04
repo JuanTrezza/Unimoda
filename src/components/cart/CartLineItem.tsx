@@ -28,7 +28,7 @@ export function CartLineItem({ line, onNavigate }: Props) {
         tabIndex={-1}
         aria-hidden="true"
       >
-        {image && <ProductImage image={image} silhouette={product.silhouette} colorHex={color.hex} />}
+        {image && <ProductImage image={image} silhouette={product.silhouette} colorHex={color.hex} sizes="96px" />}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex justify-between gap-3">

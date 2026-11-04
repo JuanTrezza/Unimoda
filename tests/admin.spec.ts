@@ -35,6 +35,15 @@ async function login(page: Page, user: { email: string; password: string }) {
 
 const toast = (page: Page, text: string | RegExp) => page.getByRole('status').filter({ hasText: text })
 
+/** Link del menú del panel; en mobile, abre primero el menú desplegable */
+const panelLink = (page: Page, name: string) => ({
+  click: async () => {
+    const open = page.getByRole('button', { name: 'Abrir menú del panel' })
+    if (await open.isVisible()) await open.click()
+    await page.getByRole('navigation', { name: 'Panel' }).getByRole('link', { name }).click()
+  },
+})
+
 /** PNG RGB de un color, sin dependencias (para probar el redimensionado del front) */
 function makePng(width: number, height: number): Buffer {
   const crcTable = Array.from({ length: 256 }, (_, n) => {
@@ -90,7 +99,7 @@ test('alta de producto con color, stock y foto; desactivar pide confirmación', 
   await page.getByRole('button', { name: 'Mi cuenta' }).click()
   await page.getByRole('link', { name: 'Panel de administración' }).click()
   await expect(page.getByRole('heading', { level: 1, name: 'Resumen' })).toBeVisible()
-  await page.getByRole('navigation', { name: 'Panel' }).getByRole('link', { name: 'Productos' }).click()
+  await panelLink(page, 'Productos').click()
   await page.getByRole('link', { name: 'Nuevo producto' }).click()
 
   // Validación accesible y slug autogenerado
@@ -212,7 +221,7 @@ test('pedidos: filtro, búsqueda, pagado, resumen y cancelación con devolución
   expect(order.status).toBe('pagado')
 
   // El resumen cuenta solo pagados/enviados
-  await page.getByRole('navigation', { name: 'Panel' }).getByRole('link', { name: 'Resumen' }).click()
+  await panelLink(page, 'Resumen').click()
   await expect(page.getByTestId('month-sales')).toHaveText(/179\.800/)
   await expect(page.getByTestId('pending-orders')).toHaveText('1')
   await expect(page.getByRole('region', { name: 'Más vendidos del mes' })).toContainText('Vestido midi de lino')

@@ -25,7 +25,7 @@ function stockMessage(p: StockProblem) {
 export function CheckoutPage() {
   const userId = useSession((s) => s.user?.id ?? '')
   const navigate = useNavigate()
-  const { lines, count, subtotal, shipping, total, loading } = useCartLines()
+  const { lines, count, subtotal, shipping, total, loading, error: cartError, retry: retryCart } = useCartLines()
   const addresses = useAsync(`addresses:${userId}`, getAddresses, { keepPrevious: true })
   const clearCart = useCart((s) => s.clear)
   const setQuantity = useCart((s) => s.setQuantity)
@@ -68,10 +68,17 @@ export function CheckoutPage() {
   }
 
   if (loading) return <div className="container-site h-80 py-16" aria-busy="true" />
+  if (cartError) {
+    return (
+      <div className="container-site py-10">
+        <ErrorState what="tu carrito" onRetry={retryCart} />
+      </div>
+    )
+  }
   if (lines.length === 0) {
     return (
       <div className="container-site flex flex-col items-center py-24 text-center">
-        <Seo title="Checkout" />
+        <Seo title="Checkout" description="Tu carrito de Unimoda." noindex />
         <h1 className="font-serif text-4xl">Tu carrito está vacío</h1>
         <Link to="/tienda" className="btn-primary mt-8">
           Ir a la tienda
@@ -82,7 +89,7 @@ export function CheckoutPage() {
 
   return (
     <div className="container-site pb-20 pt-8 md:pt-12">
-      <Seo title="Checkout" description="Confirmá tu pedido en Unimoda." />
+      <Seo title="Checkout" description="Confirmá tu pedido en Unimoda." noindex />
       <Link to="/carrito" className="inline-flex min-h-11 items-center gap-1 text-sm underline underline-offset-4">
         <Icon name="chevronLeft" size={16} /> Volver al carrito
       </Link>

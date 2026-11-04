@@ -41,6 +41,8 @@ export interface ProductImage {
   colorId?: string
   /** URL completa (foto estática o de Storage). Sin definir: images/products/{file} */
   url?: string
+  /** srcset con la versión de 640 px (solo fotos estáticas, ver scripts/generate-images.ts) */
+  srcSet?: string
   /** Medidas reales del archivo (por defecto 1024×1280) */
   width?: number
   height?: number

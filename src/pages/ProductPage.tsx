@@ -46,6 +46,28 @@ export function ProductPage() {
   return <ProductDetail key={product.id} product={product} />
 }
 
+/** Datos estructurados de schema.org: Google puede mostrar precio y disponibilidad */
+function productJsonLd(product: Product) {
+  const absolute = (url: string) => new URL(url, window.location.href).href
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    category: product.category,
+    brand: { '@type': 'Brand', name: 'Unimoda' },
+    image: product.images.flatMap((img) => (img.url ? [absolute(img.url)] : [])),
+    offers: {
+      '@type': 'Offer',
+      url: window.location.href,
+      priceCurrency: 'ARS',
+      price: product.price,
+      itemCondition: 'https://schema.org/NewCondition',
+      availability: product.variants.some((v) => v.stock > 0) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+  }
+}
+
 function ProductDetail({ product }: { product: Product }) {
   const firstAvailableColor =
     product.colors.find((c) => product.variants.some((v) => v.colorId === c.id && v.stock > 0)) ?? product.colors[0]!
@@ -92,7 +114,13 @@ function ProductDetail({ product }: { product: Product }) {
 
   return (
     <div className="pb-20">
-      <Seo title={product.name} description={`${product.name} en ${color.name}. ${product.description}`} />
+      <Seo
+        title={product.name}
+        description={`${product.name} en ${color.name}. ${product.description}`.slice(0, 160)}
+        type="product"
+        image={images[0]?.ready && images[0].url ? { url: images[0].url, width: images[0].width, height: images[0].height } : undefined}
+        jsonLd={productJsonLd(product)}
+      />
 
       <nav aria-label="Ruta de navegación" className="container-site py-4 text-xs text-tinta-muted">
         <ol className="flex flex-wrap items-center gap-1">
@@ -133,7 +161,7 @@ function ProductDetail({ product }: { product: Product }) {
                         i === activeImage ? 'ring-2 ring-tinta' : 'opacity-70 hover:opacity-100',
                       )}
                     >
-                      <ProductImage image={img} silhouette={product.silhouette} colorHex={color.hex} />
+                      <ProductImage image={img} silhouette={product.silhouette} colorHex={color.hex} sizes="80px" />
                     </button>
                   </li>
                 ))}
@@ -148,6 +176,7 @@ function ProductDetail({ product }: { product: Product }) {
                 colorHex={color.hex}
                 priority
                 fetchPriority="high"
+                sizes="(min-width: 1024px) 50vw, (min-width: 768px) 48vw, 100vw"
                 className="motion-safe:animate-fade-in"
               />
               {product.isNew && <span className="badge absolute left-4 top-4 bg-crema-50">Nuevo</span>}
@@ -317,7 +346,11 @@ function ProductDetail({ product }: { product: Product }) {
         <h2 id="related-title" className="mb-8 font-serif text-3xl">
           También te puede gustar
         </h2>
-        <ProductGrid products={related.data} loading={related.loading} count={4} />
+        {related.error ? (
+          <ErrorState what="las recomendaciones" onRetry={related.retry} compact />
+        ) : (
+          <ProductGrid products={related.data} loading={related.loading} count={4} />
+        )}
       </section>
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />

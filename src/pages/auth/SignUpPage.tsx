@@ -85,7 +85,7 @@ export function SignUpPage() {
   if (sentTo) {
     return (
       <AuthCard eyebrow="Tu cuenta" title="Revisá tu email">
-        <Seo title="Revisá tu email" />
+        <Seo title="Revisá tu email" description="Confirmá tu cuenta de Unimoda." noindex />
         <div ref={confirmRef} tabIndex={-1} role="status" className="outline-none">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-terracota text-white">
             <Icon name="mail" />

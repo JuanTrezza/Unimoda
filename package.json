@@ -9,7 +9,11 @@
     "typecheck": "tsc -b",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "db:seed": "npx --yes tsx scripts/generate-seed.ts"
+    "db:seed": "npx --yes tsx scripts/generate-seed.ts",
+    "lighthouse": "npx --yes tsx scripts/lighthouse.ts",
+    "mock:api": "npx --yes tsx scripts/mock-api.ts",
+    "images": "npx --yes tsx scripts/generate-images.ts",
+    "docs:screenshots": "playwright test --config playwright.docs.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",
@@ -28,6 +32,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.6.2",
     "postcss": "^8.5.32",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
     "vite": "^6.4.5"

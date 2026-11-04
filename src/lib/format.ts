@@ -24,6 +24,12 @@ export const INSTALLMENTS = 6
 export const FREE_SHIPPING_FROM = 150000
 export const SHIPPING_COST = 8500
 
+/** srcset de las versiones que genera scripts/generate-images.ts junto a cada JPG */
+export function webpSrcSet(jpg: string, width: number): string {
+  const base = jpg.replace(/\.jpg$/, '')
+  return `${base}-360.webp 360w, ${base}-640.webp 640w, ${base}.webp ${width}w`
+}
+
 export function cn(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(' ')
 }

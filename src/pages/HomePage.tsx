@@ -6,6 +6,8 @@ import { Icon, type IconName } from '../components/ui/Icon'
 import { Newsletter } from '../components/Newsletter'
 import { useAsync } from '../hooks/useAsync'
 import { getCategories, getNewArrivals } from '../services/catalog'
+import { ErrorState } from '../components/ui/ErrorState'
+import { CATEGORIES } from '../data/categories'
 import { EDITORIAL } from '../data/editorial'
 import { formatPrice, FREE_SHIPPING_FROM, INSTALLMENTS } from '../lib/format'
 
@@ -44,7 +46,8 @@ export function HomePage() {
         </div>
         <div className="order-1 md:order-2 md:col-span-7">
           <div className="aspect-[4/5] overflow-hidden rounded-sm md:aspect-[5/6] lg:aspect-[6/7]">
-            <EditorialPicture image={EDITORIAL.hero} priority />
+            {/* Mismo sizes que el app shell de index.html. 88vw (no 92): con DPR 1,75 alcanza la de 640 px */}
+            <EditorialPicture image={EDITORIAL.hero} priority sizes="(min-width: 768px) 58vw, 88vw" />
           </div>
         </div>
       </section>
@@ -60,12 +63,13 @@ export function HomePage() {
           </Link>
         </div>
         <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {(categories.data ?? []).map((c) => (
+          {(categories.data ?? CATEGORIES).map((c) => (
             <li key={c.id}>
               <Link to={`/tienda?categoria=${c.id}`} className="group block">
                 <div className="aspect-[3/4] overflow-hidden rounded-sm">
                   <EditorialPicture
                     image={EDITORIAL[c.id]}
+                    sizes="(min-width: 1024px) 15vw, (min-width: 768px) 31vw, 47vw"
                     className="transition-transform duration-700 motion-safe:group-hover:scale-105"
                   />
                 </div>
@@ -95,14 +99,18 @@ export function HomePage() {
             Ver todas <Icon name="arrowRight" size={16} />
           </Link>
         </div>
-        <ProductGrid products={newArrivals.data} loading={newArrivals.loading} count={4} />
+        {newArrivals.error ? (
+          <ErrorState what="las novedades" onRetry={newArrivals.retry} compact />
+        ) : (
+          <ProductGrid products={newArrivals.data} loading={newArrivals.loading} count={4} />
+        )}
       </section>
 
       {/* Banner de temporada */}
       <section aria-labelledby="season-title" className="bg-tinta text-crema-50">
         <div className="container-site grid gap-0 md:grid-cols-2">
           <div className="-mx-4 aspect-[4/3] sm:-mx-6 md:mx-0 md:aspect-auto md:min-h-[520px]">
-            <EditorialPicture image={EDITORIAL.temporada} />
+            <EditorialPicture image={EDITORIAL.temporada} sizes="(min-width: 768px) 50vw, 100vw" />
           </div>
           <div className="flex flex-col justify-center py-14 md:px-12 lg:px-20">
             <p className="eyebrow text-arena">Temporada</p>

@@ -28,7 +28,7 @@ export function AboutPage() {
           </p>
         </div>
         <div className="aspect-[4/5] overflow-hidden rounded-sm">
-          <EditorialPicture image={EDITORIAL.nosotros} priority />
+          <EditorialPicture image={EDITORIAL.nosotros} priority sizes="(min-width: 768px) 50vw, 100vw" />
         </div>
       </section>
 

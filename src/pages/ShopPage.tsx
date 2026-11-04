@@ -197,7 +197,7 @@ export function ShopPage() {
             </div>
           ) : (
             <div className={refreshing ? 'opacity-60 transition-opacity' : 'transition-opacity'} aria-busy={products.loading}>
-              <ProductGrid products={products.data} loading={!products.data} />
+              <ProductGrid products={products.data} loading={!products.data} eager={4} headingLevel={2} />
             </div>
           )}
         </div>

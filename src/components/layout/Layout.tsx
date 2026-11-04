@@ -1,11 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef, type ReactNode } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from './Header'
 import { Footer } from './Footer'
 import { CartDrawer } from '../cart/CartDrawer'
+import { ErrorBoundary } from '../ErrorBoundary'
 import { Toaster } from '../ui/Toaster'
 
-export function Layout() {
+/** Layout de la tienda. `children` reemplaza al Outlet cuando se usa fuera de una ruta anidada. */
+export function Layout({ children }: { children?: ReactNode }) {
   const { pathname } = useLocation()
   const mainRef = useRef<HTMLElement>(null)
   const firstRender = useRef(true)
@@ -33,8 +35,11 @@ export function Layout() {
         Saltar al contenido
       </a>
       <Header />
-      <main id="contenido" ref={mainRef} tabIndex={-1} className="flex-1 outline-none">
-        <Outlet />
+      <main id="contenido" ref={mainRef} tabIndex={-1} className="min-h-screen flex-1 outline-none">
+        {/* key: un error en una página no se arrastra a la siguiente */}
+        <ErrorBoundary key={pathname}>
+          <Suspense fallback={<div className="container-site h-80 py-16" aria-busy="true" />}>{children ?? <Outlet />}</Suspense>
+        </ErrorBoundary>
       </main>
       <Footer />
       <CartDrawer />

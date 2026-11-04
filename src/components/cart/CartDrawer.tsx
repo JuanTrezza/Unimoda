@@ -3,13 +3,14 @@ import { useCart } from '../../store/cart'
 import { useCartLines } from '../../hooks/useCartLines'
 import { formatPrice } from '../../lib/format'
 import { Drawer } from '../ui/Drawer'
+import { ErrorState } from '../ui/ErrorState'
 import { CartLineItem } from './CartLineItem'
 import { FreeShippingBar } from './FreeShippingBar'
 
 export function CartDrawer() {
   const isOpen = useCart((s) => s.isOpen)
   const close = useCart((s) => s.close)
-  const { lines, count, subtotal } = useCartLines()
+  const { lines, count, subtotal, error, retry } = useCartLines()
 
   return (
     <Drawer
@@ -40,7 +41,11 @@ export function CartDrawer() {
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {count} {count === 1 ? 'producto' : 'productos'} en el carrito. Subtotal {formatPrice(subtotal)}.
       </p>
-      {lines.length === 0 ? (
+      {error ? (
+        <div className="p-5">
+          <ErrorState what="tu carrito" onRetry={retry} compact />
+        </div>
+      ) : lines.length === 0 ? (
         <div className="flex h-full flex-col items-center justify-center gap-4 px-6 py-16 text-center">
           <p className="font-serif text-2xl">Tu carrito está vacío</p>
           <p className="text-sm text-tinta-muted">Descubrí las novedades de la temporada.</p>

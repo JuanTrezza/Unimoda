@@ -50,7 +50,7 @@ export function ForgotPasswordPage() {
         </Link>
       }
     >
-      <Seo title="Olvidé mi contraseña" />
+      <Seo title="Olvidé mi contraseña" description="Recuperá el acceso a tu cuenta de Unimoda." noindex />
       <AuthNoticeBanner notice={params.get('aviso')} />
       {sent ? (
         // Mismo mensaje exista o no la cuenta: no revelamos qué emails están registrados

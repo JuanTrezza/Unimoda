@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { signOut } from '../../services/account'
 import { isAdminUser, useSession } from '../../store/session'
 import { toast } from '../../store/toast'
 import { Icon } from '../ui/Icon'
@@ -92,6 +91,8 @@ export function AccountMenu() {
               className="flex min-h-11 w-full items-center px-4 text-left text-sm hover:bg-crema-200"
               onClick={async () => {
                 setOpen(false)
+                // Dinámico: services/account y supabase-js no van en el bundle principal
+                const { signOut } = await import('../../services/account')
                 await signOut()
                 toast('Cerraste sesión. Tu carrito sigue guardado.', { tone: 'info' })
                 navigate('/')

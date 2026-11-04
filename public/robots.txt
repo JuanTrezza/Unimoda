@@ -1,0 +1,4 @@
+# Los buscadores solo leen el robots.txt de la raíz del dominio. En GitHub Pages este archivo
+# queda en /Unimoda/robots.txt: toma efecto si el sitio pasa a un dominio propio (ver README).
+User-agent: *
+Allow: /

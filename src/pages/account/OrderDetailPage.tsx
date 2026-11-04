@@ -47,7 +47,7 @@ export function OrderDetailPage() {
 
   return (
     <div className="container-site pb-20 pt-8 md:pt-12">
-      <Seo title={`Pedido #${orderNumber(o.id)}`} />
+      <Seo title={`Pedido #${orderNumber(o.id)}`} description="Detalle de tu pedido en Unimoda." noindex />
       <Link to="/cuenta/pedidos" className="inline-flex min-h-11 items-center gap-1 text-sm underline underline-offset-4">
         <Icon name="chevronLeft" size={16} /> Mis pedidos
       </Link>

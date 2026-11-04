@@ -8,9 +8,14 @@ import { WishlistButton } from './WishlistButton'
 interface Props {
   product: Product
   priority?: boolean
+  headingLevel?: 2 | 3
 }
 
-export function ProductCard({ product, priority }: Props) {
+// Mismas columnas que ProductGrid
+const CARD_SIZES = '(min-width: 1024px) 22vw, (min-width: 768px) 31vw, 47vw'
+
+export function ProductCard({ product, priority, headingLevel = 3 }: Props) {
+  const Heading = `h${headingLevel}` as const
   const firstColor = product.colors[0]!
   const [front, back] = imagesForColor(product, firstColor.id)
   const soldOut = product.variants.every((v) => v.stock === 0)
@@ -30,12 +35,13 @@ export function ProductCard({ product, priority }: Props) {
               silhouette={product.silhouette}
               colorHex={firstColor.hex}
               priority={priority}
+              sizes={CARD_SIZES}
               className="transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.03]"
             />
           )}
           {back && (
             <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true">
-              <ProductImage image={back} silhouette={product.silhouette} colorHex={firstColor.hex} />
+              <ProductImage image={back} silhouette={product.silhouette} colorHex={firstColor.hex} sizes={CARD_SIZES} />
             </div>
           )}
         </Link>
@@ -47,11 +53,11 @@ export function ProductCard({ product, priority }: Props) {
         <WishlistButton product={product} className="absolute right-2 top-2" />
       </div>
       <div className="mt-3 space-y-1">
-        <h3 className="text-sm leading-snug">
+        <Heading className="text-sm leading-snug">
           <Link to={`/producto/${product.slug}`} className="hover:underline hover:underline-offset-4">
             {product.name}
           </Link>
-        </h3>
+        </Heading>
         <Price price={product.price} compareAtPrice={product.compareAtPrice} />
         <ul className="flex gap-1.5 pt-1" aria-label={`Colores: ${product.colors.map((c) => c.name).join(', ')}`}>
           {product.colors.map((c) => (
@@ -73,12 +79,26 @@ export function ProductCardSkeleton() {
   )
 }
 
-export function ProductGrid({ products, loading, count = 8 }: { products?: Product[]; loading?: boolean; count?: number }) {
+export function ProductGrid({
+  products,
+  loading,
+  count = 8,
+  eager = 0,
+  headingLevel,
+}: {
+  products?: Product[]
+  loading?: boolean
+  count?: number
+  /** Cuántas tarjetas se ven sin scrollear (sin lazy). Debajo del pliegue, 0. */
+  eager?: number
+  /** 2 cuando la grilla va directo bajo el h1 */
+  headingLevel?: 2 | 3
+}) {
   return (
     <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
       {loading || !products
         ? Array.from({ length: count }, (_, i) => <ProductCardSkeleton key={i} />)
-        : products.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} />)}
+        : products.map((p, i) => <ProductCard key={p.id} product={p} priority={i < eager} headingLevel={headingLevel} />)}
     </div>
   )
 }

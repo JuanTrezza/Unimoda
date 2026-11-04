@@ -23,7 +23,7 @@ export function ResetPasswordPage() {
   if (status === 'anonymous') {
     return (
       <AuthCard eyebrow="Tu cuenta" title="Nueva contraseña">
-        <Seo title="Nueva contraseña" />
+        <Seo title="Nueva contraseña" description="Elegí una contraseña nueva para tu cuenta de Unimoda." noindex />
         <p>El enlace venció o no es válido. Pedí uno nuevo y abrilo desde este navegador.</p>
         <Link to="/olvide-contrasena" className="btn-primary mt-6">
           Pedir un enlace nuevo
@@ -53,7 +53,7 @@ export function ResetPasswordPage() {
 
   return (
     <AuthCard eyebrow="Tu cuenta" title="Nueva contraseña" intro="Elegí una contraseña nueva para tu cuenta.">
-      <Seo title="Nueva contraseña" />
+      <Seo title="Nueva contraseña" description="Elegí una contraseña nueva para tu cuenta de Unimoda." noindex />
       <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-6">
         <Field
           id="password"

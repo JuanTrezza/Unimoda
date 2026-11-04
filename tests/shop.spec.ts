@@ -39,6 +39,8 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('recorrido completo: navegar, filtrar, carrito y favoritos', async ({ page }) => {
+  // Es largo (25 s en solitario): con los tests en paralelo se pasaba de los 30 s por defecto
+  test.setTimeout(60_000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))

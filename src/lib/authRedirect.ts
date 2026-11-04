@@ -17,7 +17,7 @@
  * email igual quedó confirmado (Supabase lo confirma antes de redirigir), así que mandamos a
  * Ingresar con un aviso. Para recuperar contraseña hay que abrirlo en el mismo navegador.
  */
-import { supabase } from './supabase'
+import { getSupabase } from './getSupabase'
 
 export type AuthRedirectType = 'signup' | 'recovery'
 
@@ -48,6 +48,7 @@ export async function handleAuthRedirect(): Promise<void> {
   const isCallback = Boolean(type || query.has('code') || query.has('error') || hashParams)
   if (!isCallback) return
 
+  const supabase = await getSupabase()
   const { error } = await supabase.auth.initialize()
   const { data } = await supabase.auth.getSession()
   const failed = Boolean(error || query.has('error') || hashParams?.has('error'))

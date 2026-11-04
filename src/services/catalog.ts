@@ -5,7 +5,9 @@
  * filtros, orden y búsqueda se resuelven en la consulta. RLS ya oculta los productos
  * inactivos, así que acá no se filtra por is_active.
  */
-import { supabase } from '../lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { getSupabase } from '../lib/getSupabase'
+import { webpSrcSet } from '../lib/format'
 import type {
   Category,
   CategoryId,
@@ -101,16 +103,23 @@ function normalize(text: string): string {
 export const PRODUCT_IMAGES_BUCKET = 'product-images'
 
 /** Fotos estáticas (public/images, en el repo) o subidas desde el panel al bucket product-images */
-export function imageUrl(source: 'static' | 'storage', path: string): string {
+export function imageUrl(db: SupabaseClient, source: 'static' | 'storage', path: string): string {
   return source === 'storage'
-    ? supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(path).data.publicUrl
+    ? db.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(path).data.publicUrl
     : `${import.meta.env.BASE_URL}${path}`
+}
+
+/** Las fotos estáticas tienen versiones WebP al lado (npm run images); las de Storage no */
+function imageSrcSet(source: 'static' | 'storage', path: string, width: number): string | undefined {
+  if (source !== 'static' || !path.endsWith('.jpg') || width <= 640) return undefined
+  const base = `${import.meta.env.BASE_URL}${path}`
+  return webpSrcSet(base, width)
 }
 
 const fromCents = (cents: number) => Math.round(cents / 100)
 const toCents = (pesos: number) => Math.round(pesos * 100)
 
-function toProduct(row: ProductRow): Product {
+function toProduct(db: SupabaseClient, row: ProductRow): Product {
   const colorRows = [...row.colors].sort((a, b) => a.sort_order - b.sort_order)
   const slugById = new Map(colorRows.map((c) => [c.id, c.slug]))
   const colors: Color[] = colorRows.map((c) => ({ id: c.slug, name: c.name, hex: c.hex }))
@@ -128,7 +137,8 @@ function toProduct(row: ProductRow): Product {
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((img) => ({
       file: img.path.startsWith(IMAGE_DIR) ? img.path.slice(IMAGE_DIR.length) : img.path,
-      url: imageUrl(img.source, img.path),
+      url: imageUrl(db, img.source, img.path),
+      srcSet: imageSrcSet(img.source, img.path, img.width),
       alt: img.alt,
       view: img.view,
       ready: true,
@@ -163,30 +173,33 @@ function toProduct(row: ProductRow): Product {
 
 // is_active explícito: RLS ya oculta los inactivos a los clientes, pero a un admin se los
 // muestra; así el admin ve la tienda igual que cualquiera.
-function products(extraSelect = '') {
-  return supabase.from('products').select(PRODUCT_SELECT + extraSelect).eq('is_active', true)
+function products(db: SupabaseClient, extraSelect = '') {
+  return db.from('products').select(PRODUCT_SELECT + extraSelect).eq('is_active', true)
 }
 
-async function fetchProducts(query: PromiseLike<{ data: unknown; error: { message: string } | null }>) {
-  return check<ProductRow[]>(await query).map(toProduct)
+async function fetchProducts(db: SupabaseClient, query: PromiseLike<{ data: unknown; error: { message: string } | null }>) {
+  return check<ProductRow[]>(await query).map((row) => toProduct(db, row))
 }
 
 export async function getCategories(): Promise<Category[]> {
+  const db = await getSupabase()
   const rows = check<CategoryRow[]>(
-    await supabase.from('categories').select('slug, name, description').order('sort_order'),
+    await db.from('categories').select('slug, name, description').order('sort_order'),
   )
   return rows.map((c) => ({ id: c.slug, name: c.name, description: c.description }))
 }
 
 export async function getCategory(id: CategoryId): Promise<Category | undefined> {
+  const db = await getSupabase()
   const rows = check<CategoryRow[]>(
-    await supabase.from('categories').select('slug, name, description').eq('slug', id).limit(1),
+    await db.from('categories').select('slug, name, description').eq('slug', id).limit(1),
   )
   const c = rows[0]
   return c && { id: c.slug, name: c.name, description: c.description }
 }
 
 export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
+  const db = await getSupabase()
   const { category, sizes, colors, minPrice, maxPrice, search, sort = 'relevancia' } = query
   const bySize = Boolean(sizes?.length)
   const byColor = Boolean(colors?.length)
@@ -198,7 +211,7 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
       ? `, match:variants!inner(size, stock${byColor ? ', color:product_colors!inner(slug)' : ''})`
       : ''
 
-  let q = products(match)
+  let q = products(db, match)
   if (category) q = q.eq('category.slug', category)
   if (minPrice !== undefined) q = q.gte('price_cents', toCents(minPrice))
   if (maxPrice !== undefined) q = q.lte('price_cents', toCents(maxPrice))
@@ -223,15 +236,17 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
     default:
       q = q.order('popularity', { ascending: false })
   }
-  return fetchProducts(q.order('slug'))
+  return fetchProducts(db, q.order('slug'))
 }
 
 export async function getNewArrivals(limit = 4): Promise<Product[]> {
-  return fetchProducts(products().eq('is_new', true).order('created_at', { ascending: false }).limit(limit))
+  const db = await getSupabase()
+  return fetchProducts(db, products(db).eq('is_new', true).order('created_at', { ascending: false }).limit(limit))
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  const [product] = await fetchProducts(products().eq('slug', slug).limit(1))
+  const db = await getSupabase()
+  const [product] = await fetchProducts(db, products(db).eq('slug', slug).limit(1))
   return product
 }
 
@@ -239,12 +254,15 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   // Favoritos guardados antes de la migración tienen ids viejos ("p01"): no son uuid y se ignoran
   const valid = ids.filter((id) => UUID_RE.test(id))
   if (!valid.length) return []
-  return fetchProducts(products().in('id', valid))
+  const db = await getSupabase()
+  return fetchProducts(db, products(db).in('id', valid))
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
+  const db = await getSupabase()
   const sameCategory = await fetchProducts(
-    products()
+    db,
+    products(db)
       .eq('category.slug', product.category)
       .neq('id', product.id)
       .order('popularity', { ascending: false })
@@ -252,7 +270,8 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
   )
   if (sameCategory.length >= limit) return sameCategory
   const others = await fetchProducts(
-    products()
+    db,
+    products(db)
       .neq('category.slug', product.category)
       .order('popularity', { ascending: false })
       .limit(limit - sameCategory.length),
@@ -264,8 +283,9 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
 export async function getVariantsByIds(variantIds: string[]): Promise<ResolvedVariant[]> {
   const skus = [...new Set(variantIds)].filter((id) => SKU_RE.test(id))
   if (!skus.length) return []
+  const db = await getSupabase()
   const rows = check<{ sku: string; product: ProductRow }[]>(
-    await supabase
+    await db
       .from('variants')
       .select(`sku, product:products!inner(${PRODUCT_SELECT}, is_active)`)
       .eq('product.is_active', true)
@@ -273,7 +293,7 @@ export async function getVariantsByIds(variantIds: string[]): Promise<ResolvedVa
   )
   const bySku = new Map<string, ResolvedVariant>()
   for (const row of rows) {
-    const product = toProduct(row.product)
+    const product = toProduct(db, row.product)
     const variant = product.variants.find((v) => v.id === row.sku)
     const color = variant && product.colors.find((c) => c.id === variant.colorId)
     if (variant && color) bySku.set(row.sku, { product, variant, color })
@@ -283,16 +303,17 @@ export async function getVariantsByIds(variantIds: string[]): Promise<ResolvedVa
 }
 
 export async function getFilterOptions(): Promise<FilterOptions> {
+  const db = await getSupabase()
   const [categories, colorRows, sizeRows, cheapest, priciest] = await Promise.all([
     getCategories(),
-    supabase
+    db
       .from('product_colors')
       .select('slug, name, hex, product:products!inner(is_active)')
       .eq('product.is_active', true)
       .order('slug'),
-    supabase.from('variants').select('size, product:products!inner(is_active)').eq('product.is_active', true),
-    supabase.from('products').select('price_cents').eq('is_active', true).order('price_cents', { ascending: true }).limit(1),
-    supabase.from('products').select('price_cents').eq('is_active', true).order('price_cents', { ascending: false }).limit(1),
+    db.from('variants').select('size, product:products!inner(is_active)').eq('product.is_active', true),
+    db.from('products').select('price_cents').eq('is_active', true).order('price_cents', { ascending: true }).limit(1),
+    db.from('products').select('price_cents').eq('is_active', true).order('price_cents', { ascending: false }).limit(1),
   ])
 
   // product_colors tiene una fila por producto: se deduplica por slug

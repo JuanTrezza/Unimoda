@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getVariantsByIds } from '../services/catalog'
 import { useCart } from '../store/cart'
 import { FREE_SHIPPING_FROM, SHIPPING_COST } from '../lib/format'
@@ -17,6 +17,8 @@ export function useCartLines() {
   const remove = useCart((s) => s.remove)
   const [resolved, setResolved] = useState<Map<string, ResolvedVariant>>(new Map())
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   const idsKey = items.map((i) => i.variantId).join('|')
 
@@ -28,19 +30,28 @@ export function useCartLines() {
         if (cancelled) return
         setResolved(new Map(list.map((r) => [r.variant.id, r])))
         setLoading(false)
+        setFailed(false)
         // Variantes que ya no existen en el catálogo se sacan del carrito
         const found = new Set(list.map((r) => r.variant.id))
         ids.filter((id) => !found.has(id)).forEach(remove)
       },
-      // Sin conexión no se toca el carrito: se reintenta cuando cambia
+      // Sin conexión no se toca el carrito: se avisa y se puede reintentar
       () => {
-        if (!cancelled) setLoading(false)
+        if (cancelled) return
+        setLoading(false)
+        setFailed(true)
       },
     )
     return () => {
       cancelled = true
     }
-  }, [idsKey, remove])
+  }, [idsKey, remove, attempt])
+
+  const retry = useCallback(() => {
+    setLoading(true)
+    setFailed(false)
+    setAttempt((n) => n + 1)
+  }, [])
 
   return useMemo(() => {
     const lines: CartLine[] = []
@@ -63,6 +74,9 @@ export function useCartLines() {
       freeShipping,
       missingForFreeShipping: Math.max(0, FREE_SHIPPING_FROM - subtotal),
       loading: loading && items.length > 0,
+      /** Hay ítems en el carrito pero no se pudieron leer sus datos */
+      error: failed && items.length > 0,
+      retry,
     }
-  }, [items, resolved, loading])
+  }, [items, resolved, loading, failed, retry])
 }

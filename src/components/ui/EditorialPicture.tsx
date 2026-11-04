@@ -1,27 +1,32 @@
 import { useId } from 'react'
 import type { EditorialImage } from '../../data/editorial'
-import { cn } from '../../lib/format'
+import { cn, webpSrcSet } from '../../lib/format'
 
 interface Props {
   image: EditorialImage
   className?: string
   /** Imagen principal de la página (LCP): carga inmediata y con prioridad alta */
   priority?: boolean
+  /** Ancho con el que se muestra, para elegir entre la versión de 640 px y la original */
+  sizes: string
 }
 
 /** Foto editorial real o, mientras tanto, una composición abstracta con arcos y degradé. */
-export function EditorialPicture({ image, className, priority }: Props) {
+export function EditorialPicture({ image, className, priority, sizes }: Props) {
   const id = useId()
   if (image.ready) {
+    const src = `${import.meta.env.BASE_URL}images/editorial/${image.file}`
     return (
       <img
-        src={`${import.meta.env.BASE_URL}images/editorial/${image.file}`}
+        src={src}
+        srcSet={webpSrcSet(src, image.width)}
+        sizes={sizes}
         alt={image.alt}
         width={image.width}
         height={image.height}
         loading={priority ? 'eager' : 'lazy'}
         fetchPriority={priority ? 'high' : 'auto'}
-        decoding={priority ? 'sync' : 'async'}
+        decoding="async"
         className={cn('h-full w-full object-cover', className)}
       />
     )

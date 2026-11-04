@@ -14,7 +14,7 @@ export function OrdersPage() {
 
   return (
     <div className="container-site pb-20 pt-8 md:pt-12">
-      <Seo title="Mis pedidos" />
+      <Seo title="Mis pedidos" description="Tus pedidos en Unimoda." noindex />
       <p className="eyebrow">Tu cuenta</p>
       <h1 className="mt-2 font-serif text-4xl md:text-5xl">Mis pedidos</h1>
       <div className="mt-6">

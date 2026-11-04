@@ -1,161 +1,199 @@
 # Unimoda
 
-E-commerce de moda femenina argentina. React 19 + TypeScript + Vite + Tailwind CSS 3, publicado en GitHub Pages.
+E-commerce de moda femenina argentina: catálogo con filtros, carrito, cuentas, checkout con stock y precios validados en el servidor, y un panel de administración. Es un proyecto de portfolio: **el pago está simulado y no se cobra nada**.
 
-## Scripts
+**Demo:** <https://juantrezza.github.io/Unimoda/>
 
-```bash
-npm install
-npm run dev        # desarrollo en http://localhost:5173/Unimoda/
-npm run build      # tsc + build de producción en dist/
-npm run preview    # sirve dist/
-npm run test:e2e   # Playwright en 375 px y 1440 px, con Supabase mockeado (la primera vez: npx playwright install chromium)
-npm run db:seed    # regenera supabase/seed.sql desde src/data/products.ts
+<p>
+  <img src="docs/screenshots/portada-desktop.webp" alt="Portada de Unimoda en desktop" width="72%" />
+  <img src="docs/screenshots/portada-mobile.webp" alt="Portada de Unimoda en mobile" width="22%" />
+</p>
+
+## Stack
+
+| Capa | Tecnología |
+| --- | --- |
+| Front | React 19, TypeScript, Vite, Tailwind CSS 3, React Router (`HashRouter`), Zustand |
+| Back | Supabase: Postgres con RLS, PostgREST, Auth (PKCE) y Storage. Sin servidor propio |
+| Tests | Playwright en 375 y 1440 px, con Supabase mockeado |
+| Deploy | GitHub Actions a GitHub Pages |
+
+## Arquitectura
+
+No hay backend propio: el navegador habla directo con Supabase usando la publishable key, que es pública por diseño. La seguridad vive en la base.
+
+```mermaid
+flowchart LR
+  subgraph Navegador
+    UI["React<br/>páginas y panel"] --> SV["services/*"]
+    SV --> SJS["supabase-js"]
+  end
+
+  SJS -->|"lecturas y escrituras<br/>permitidas"| REST["PostgREST"]
+  SJS -->|"rpc create_order<br/>solo variant_id y cantidad"| REST
+  SJS -->|"login, registro,<br/>PKCE"| AUTH["Auth"]
+  SJS -->|"fotos del panel"| ST["Storage"]
+
+  subgraph Supabase
+    REST --> RLS{"GRANT + RLS<br/>auth.uid() · is_admin()"}
+    AUTH -->|"JWT con app_metadata.role"| RLS
+    ST --> RLS
+    RLS --> PG[("Postgres")]
+    REST --> CO["create_order<br/>security definer"]
+    CO -->|"bloquea variantes, valida stock,<br/>toma precios de la base,<br/>crea el pedido y descuenta"| PG
+  end
 ```
 
-## Estructura
+## Decisiones técnicas
+
+**El precio se calcula en el servidor.** Lo que manda el navegador se puede modificar desde las DevTools. Por eso `create_order` recibe solo `[{variant_id, quantity}]` y una dirección: el precio sale de `products.price_cents`, el envío de `private.checkout_rules()` y el total se suma en la base. Los montos del front son informativos.
+
+**RLS y `GRANT` explícitos.** El proyecto no expone tablas automáticamente: cada tabla tiene sus `GRANT` y sus políticas. Cada usuario ve y edita solo su perfil y sus direcciones, y puede *leer* sus pedidos. Solo un admin escribe el catálogo. Nadie puede escribir `orders` u `order_items` directamente, salvo el `status` que cambia un admin.
+
+**Funciones `security definer`.** `create_order` y `cancel_order` corren con los permisos de su dueño, por eso pueden crear pedidos y descontar stock aunque el cliente no pueda. A cambio:
+
+- usan `set search_path = ''` y nombres calificados, para que nadie pueda colar una tabla o función con el mismo nombre en otro schema;
+- validan todo adentro: sesión, que la dirección o el pedido sean del usuario, 1 a 20 líneas, cantidad de 1 a 10, sin repetidos, producto activo y stock;
+- bloquean las variantes con `SELECT … FOR UPDATE` ordenado por id, sin sobreventa ni deadlocks, y hacen todo en una transacción;
+- limitan a 5 pedidos pendientes por usuario por hora;
+- tienen `EXECUTE` solo para `authenticated`.
+
+**El rol va en `app_metadata`.** `user_metadata` lo puede editar el propio usuario con `supabase.auth.updateUser()`: si el rol estuviera ahí, cualquiera podría hacerse admin. `app_metadata` solo se escribe con `service_role` o desde SQL. Supabase lo copia al JWT, así que RLS lo lee sin consultar tablas (`private.is_admin()`). El chequeo del front es solo para la interfaz.
+
+**PKCE con `HashRouter`.** GitHub Pages no reescribe rutas, por eso las URLs son `/Unimoda/#/tienda`. Con PKCE, Supabase agrega `?code=…` a la URL de vuelta. Si esa URL tuviera un `#/ruta`, el código quedaría detrás del hash y el router lo tomaría como parte de la ruta. Por eso los links de los emails vuelven a la raíz con un tipo (`/Unimoda/?auth=recovery`). Antes de montar React se espera a que auth-js canjee el código y se reemplaza la URL por la ruta con hash, sin dejar el `code` en el historial (`src/lib/authRedirect.ts`). Si el link se abre en otro navegador no está el *code verifier*: el email igual queda confirmado y se manda a Ingresar con un aviso.
+
+**Otras decisiones**
+
+- El carrito guarda solo SKU y cantidad; precio, nombre y stock se leen siempre del catálogo.
+- Los filtros viven en la URL, así el link se puede compartir, y se resuelven en la consulta, no en memoria.
+- Precios en centavos (enteros) en la base.
+- Las transiciones de estado de un pedido y la devolución de stock están en un trigger: valen para cualquier camino.
+
+## Rendimiento
+
+Lighthouse mobile con `npm run preview`, mediana de 3 corridas por página (`npm run lighthouse`). Mide contra un mock local de Supabase, no contra la base real.
+
+| Página | Performance | Accessibility | Best Practices | SEO |
+| --- | --- | --- | --- | --- |
+| Inicio | 76 | 100 | 100 | 100 |
+| Tienda | 77 | 100 | 100 | 100 |
+| Producto | 86 | 100 | 100 | 100 |
+
+Performance no llega a 90. Lo que limita es el JS de una SPA sin prerender (110 kB gzip antes del primer render) y las fuentes (hasta 193 kB). Además, Lighthouse simula la red a partir de una carga local, y el resultado varía unos 5 puntos entre corridas.
+
+Lo que ya está hecho: versiones WebP de 360 y 640 px con `srcset` y `sizes` (`npm run images`), carga diferida por ruta, supabase-js fuera del arranque, app shell estático en `index.html`, `preload` de fuentes y `preconnect` a Supabase.
+
+## SEO y sus límites con `HashRouter`
+
+Cada página tiene su título y descripción. El detalle de producto agrega Open Graph con su foto y JSON-LD de `Product` con precio y disponibilidad. El panel, la cuenta y el checkout van con `noindex`.
+
+`HashRouter` es lo que permite publicar en GitHub Pages sin un servidor que reescriba rutas, pero tiene un costo:
+
+- **Sin sitemap.** Lo que va después del `#` no se envía al servidor y los buscadores lo descartan: para ellos todo el sitio es una sola URL. Un sitemap con `/#/producto/…` no serviría, por eso no hay.
+- **Los previews no ven cada producto.** Las etiquetas por producto se escriben con JavaScript. WhatsApp, Facebook y otros no lo ejecutan: al compartir un link muestran el título y la imagen generales del `index.html`.
+- **`robots.txt` no tiene efecto en un sitio de proyecto.** Los buscadores solo leen el de la raíz del dominio, y este queda en `/Unimoda/robots.txt`.
+
+La salida es un dominio propio con `BrowserRouter` y prerender de las páginas de producto. Ahí el sitemap, los previews y `robots.txt` pasarían a funcionar.
+
+## Cómo correrlo localmente
+
+Necesitás Node 20 o más nuevo y un proyecto de Supabase con las [migraciones](#migraciones) aplicadas.
+
+```bash
+git clone https://github.com/JuanTrezza/Unimoda.git
+cd Unimoda
+npm install
+cp .env.example .env.local   # completalo con la URL y la publishable key del proyecto
+npm run dev                  # http://localhost:5173/Unimoda/
+```
+
+Para el login, configurá en Supabase, en Authentication → URL Configuration, la Site URL y agregá `http://localhost:5173/Unimoda/**` a las Redirect URLs.
+
+| Script | Qué hace |
+| --- | --- |
+| `npm run dev` | Desarrollo |
+| `npm run build` / `npm run preview` | Build de producción y servirlo |
+| `npm run test:e2e` | Tests end-to-end |
+| `npm run lighthouse` | Mide Inicio, Tienda y Producto contra el mock |
+| `npm run mock:api` | Mock de Supabase como servidor local |
+| `npm run images` | Genera las versiones WebP de las fotos |
+| `npm run db:seed` | Regenera `supabase/seed.sql` desde `src/data/products.ts` |
+| `npm run docs:screenshots` | Regenera las capturas y el video de `docs/screenshots/` |
+
+### Estructura
 
 ```
 src/
-  data/          categorías, guía de talles y fotos editoriales. products.ts solo alimenta el seed y los tests
-  services/      catalog.ts (catálogo) y forms.ts (newsletter, contacto): única puerta a Supabase
-  lib/           supabase.ts (cliente), formato de precios, fotos por color
-  store/         carrito, favoritos y toasts (Zustand, persistidos en localStorage)
-  hooks/         useAsync, useCartLines, useShopParams (filtros en la URL), useFocusTrap
-  components/    layout, ui (drawer, modal, toast, íconos), product, cart, shop
-  pages/         Inicio, Tienda, Producto, Carrito, Favoritos, Nosotros, Contacto, 404
+  admin/         panel de administración (chunk aparte)
+  components/    layout, ui, product, cart, shop, account, auth
+  pages/         tienda, cuenta y checkout
+  services/      catálogo, formularios, cuenta y pedidos: la única puerta a Supabase
+  store/         carrito, favoritos, sesión y toasts (Zustand)
+  hooks/, lib/, data/
 supabase/        migraciones SQL y seed.sql (generado)
-scripts/         generate-seed.ts y catalog-rows.ts (filas compartidas por el seed y los mocks)
-tests/           Playwright + supabase-mock.ts
-legacy/          sitio anterior en HTML + Bootstrap (no forma parte del build)
-docs/FOTOS.md    lista de fotos a producir
+scripts/         seed, imágenes, Lighthouse, mock como servidor y capturas
+tests/           Playwright y supabase-mock.ts
+docs/            capturas y lista de fotos
 ```
 
-## Decisiones
+## Migraciones
 
-- **HashRouter**: GitHub Pages no reescribe rutas, así que las URLs son `/Unimoda/#/tienda?categoria=vestidos`. Los links de los emails de Supabase vuelven a `/Unimoda/?auth=…&code=…` (ver *Autenticación*).
-- **El carrito guarda solo `variantId` y cantidad.** Precio, nombre y stock se leen siempre del catálogo (`useCartLines`).
-- **Filtros en la URL** (`categoria`, `talle`, `color`, `min`, `max`, `orden`, `q`): el link se puede compartir.
-- **Imágenes**: las de producto salen de `product_images` en Supabase; las editoriales, de `src/data/editorial.ts` (`ready`). Donde falta foto se muestra un placeholder en SVG. Ver `docs/FOTOS.md`.
-- Tipografías Fraunces e Inter servidas localmente con `@fontsource-variable`.
+En el SQL Editor de Supabase, pegá y corré cada archivo completo, en este orden:
 
-## Deploy
-
-`.github/workflows/deploy.yml` compila y publica `dist/` en cada push a `master`. En el repo, en Settings → Pages → Source, elegí **GitHub Actions**.
-
-## Base de datos (Supabase)
-
-El catálogo, la newsletter y el formulario de contacto viven en Supabase. El front usa solo la
-publishable key: lo que se puede leer o escribir lo deciden los `GRANT` y las políticas RLS.
-
-### Variables de entorno
-
-Copiá `.env.example` a `.env.local` y completalo (Supabase → Project Settings → API):
-
-```
-VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-```
-
-Sin esas variables la app se corta al iniciar con un mensaje que dice cuál falta.
-
-### Aplicar migraciones y seed
-
-En el **SQL Editor** de Supabase, pegá y corré cada archivo completo, en este orden:
-
-1. `supabase/migrations/0001_catalog.sql`: tablas del catálogo, índices y búsqueda
+1. `supabase/migrations/0001_catalog.sql`: catálogo, índices y búsqueda
 2. `supabase/migrations/0002_forms.sql`: newsletter y contacto
 3. `supabase/migrations/0003_rls_and_grants.sql`: permisos y políticas RLS
 4. `supabase/migrations/0004_auth_orders.sql`: perfiles, direcciones, pedidos, `create_order` y `cancel_order`
 5. `supabase/migrations/0005_admin.sql`: rol admin, políticas del panel, bucket de fotos y funciones del panel
 6. `supabase/seed.sql`: categorías, productos, colores, imágenes y variantes
 
-Todos son idempotentes: se pueden volver a correr. El seed hace upsert por `slug` / `sku`, así que
-sirve también para actualizar precios o stock. Al final muestra un conteo de control.
+Son idempotentes. El seed hace upsert por `slug` / `sku` y al final muestra un conteo de control.
 
-Con la CLI de Supabase el equivalente es `supabase db push` y después correr `seed.sql`.
+> Si volvés a correr una migración anterior (0001, 0003 o 0004 revocan permisos), volvé a correr también las siguientes, en orden.
 
-### Cambiar el catálogo
-
-1. Editá `src/data/products.ts`.
-2. `npm run db:seed` regenera `supabase/seed.sql` (no se edita a mano).
-3. Corré `seed.sql` en el SQL Editor.
-
-Para ocultar un producto sin borrarlo: `update products set is_active = false where slug = '...'`.
-
-### Modelo
-
-- Precios en **centavos** (`price_cents`, `compare_at_cents`), siempre enteros.
-- `product_colors.slug` es la clave del color compartida entre productos (`negro`, `crudo`…) y la usa el filtro `?color=`.
-- `variants.sku` es el id que guarda el carrito en `localStorage`.
-- `product_images.color_id` null = la foto sirve para todos los colores. La galería muestra las fotos del color elegido y, si no tiene, las compartidas.
-- `products.search_text` lo mantiene un trigger (nombre, descripción, material, categoría y colores, sin tildes). La búsqueda de la tienda filtra con `ilike` sobre esa columna.
+Para cambiar el catálogo inicial: editá `src/data/products.ts`, corré `npm run db:seed` y volvé a correr `seed.sql`. Después del primer deploy, lo normal es usar el panel.
 
 ### Deploy
 
-El workflow lee `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` de los secrets del repo
-(Settings → Secrets and variables → Actions → New repository secret). La publishable key termina
-dentro del bundle público, eso es esperado: la seguridad la dan RLS y los `GRANT`.
+`.github/workflows/deploy.yml` compila y publica `dist/` en cada push a `master`. Hace falta elegir **GitHub Actions** en Settings → Pages → Source y crear los secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY`. La publishable key termina en el bundle público, eso es esperado: la seguridad la dan RLS y los `GRANT`.
 
-## Autenticación
+## Tests
 
-Supabase Auth con email y contraseña, flujo **PKCE** (`src/lib/supabase.ts`). La sesión vive en
-`localStorage` (`unimoda-auth`) y `src/store/session.ts` la refleja para la UI. El carrito es
-independiente de la sesión: no se pierde al ingresar ni al salir.
+```bash
+npx playwright install chromium   # la primera vez
+npm run test:e2e
+```
 
-**Links de los emails con HashRouter** (`src/lib/authRedirect.ts`): con PKCE, Supabase agrega
-`?code=…` a la URL de vuelta. Si esa URL tuviera un `#/ruta`, el `?code=` quedaría detrás del hash y
-el router lo tomaría como parte de la ruta. Por eso `emailRedirectTo` / `redirectTo` apuntan a la raíz
-con un tipo: `https://juantrezza.github.io/Unimoda/?auth=signup` o `?auth=recovery`. Al cargar, antes
-de montar React, se espera a que auth-js canjee el código (`supabase.auth.initialize()`) y se
-reemplaza la URL por la ruta con hash que corresponde (`#/cuenta`, `#/nueva-contrasena`), sin el
-`code` en el historial. Si el link se abre en otro navegador (no está el *code verifier* de PKCE),
-el email igual queda confirmado y se manda a Ingresar con un aviso.
+Corren en 375 y 1440 px con un build aparte (`dist-e2e`) y `page.route`: **no usan la red ni la base real**. `tests/supabase-mock.ts` emula PostgREST, Auth y Storage con las mismas reglas que las migraciones, y parte de los mismos datos que el seed.
 
-Rutas que piden sesión (`RequireAuth`): `/cuenta`, `/cuenta/pedidos`, `/cuenta/pedidos/:id`,
-`/checkout` y `/checkout/confirmado/:id`. Sin sesión redirigen a `/ingresar?volver=<ruta>`.
+Cubren el recorrido de compra, filtros en la consulta, registro y login, callbacks de email, rutas protegidas, checkout, errores de stock, cancelación, el panel completo, SEO, errores y reintentos.
 
-## Seguridad
-
-**El precio se calcula en el servidor.** El navegador es del usuario: cualquier cosa que mande se
-puede modificar desde las DevTools. Por eso `create_order` recibe solo `[{variant_id, quantity}]` y
-una dirección; el precio sale de `products.price_cents`, el envío de `private.checkout_rules()` y el
-total se suma en la base. Los montos que muestra el front son solo informativos.
-
-**RLS + GRANT.** El proyecto no expone tablas solo: cada tabla tiene `GRANT` explícitos y políticas
-RLS. Cada usuario ve y edita solo su `profile` y sus `addresses` (`auth.uid() = user_id`) y puede
-*leer* sus `orders` / `order_items`. Nadie desde el cliente puede insertar, editar ni borrar
-`orders`, `order_items` ni `variants`: no hay `GRANT` de escritura.
-
-**Funciones `security definer`.** `create_order` y `cancel_order` corren con los permisos de su
-dueño, por eso pueden escribir pedidos y descontar stock aunque el cliente no pueda. A cambio:
-
-- `set search_path = ''` y todos los nombres calificados (`public.variants`), para que nadie pueda
-  "colar" una tabla o función con el mismo nombre en otro schema;
-- validan todo adentro: sesión (`auth.uid()`), que la dirección o el pedido sean del usuario, forma
-  y límites de `items` (1 a 20 líneas, cantidad 1 a 10, sin repetidos), producto activo y stock;
-- bloquean las variantes con `SELECT … FOR UPDATE` ordenado por id (sin sobreventa ni deadlocks) y
-  hacen todo en una transacción;
-- limitan a 5 pedidos `pendiente_pago` por usuario por hora;
-- `EXECUTE` solo para `authenticated` (revocado a `public` y `anon`).
-
-Las funciones internas viven en el schema `private`, que la Data API no expone.
-
-**Pago simulado.** Los pedidos quedan en `pendiente_pago` y no se cobra nada (proyecto demo). El
-paso a `pagado` va a hacerlo solo un webhook de Mercado Pago desde una Edge Function con
-`service_role` (TODO en `src/services/orders.ts`).
-
-> Si volvés a correr una migración anterior (0001, 0003 o 0004 revocan permisos), volvé a correr
-> también las siguientes, en orden.
+El mock no reemplaza a Postgres: las políticas RLS y las funciones SQL en sí no se ejecutan en estos tests.
 
 ## Panel de administración
 
-Rutas `/#/admin/*`. El panel es un chunk aparte (`React.lazy`): los clientes nunca lo descargan. Sin
-el claim de admin, `/admin` muestra la página 404, como si no existiera.
+<p>
+  <img src="docs/screenshots/panel-resumen.webp" alt="Resumen del panel con ventas del mes, más vendidos y stock bajo" width="72%" />
+  <img src="docs/screenshots/panel-mobile-menu.webp" alt="Panel en mobile con el menú desplegado" width="22%" />
+</p>
 
-### Crear un admin
+- **Resumen**, calculado en la base: ventas y pedidos del mes (solo pagados y enviados), pendientes, los 5 más vendidos y las variantes con stock ≤ 2.
+- **Productos**: alta y edición, colores, grilla de stock color × talle y fotos por color. Las fotos se achican a 1600 px de alto y se convierten a WebP en el navegador antes de subirlas a Storage.
+- **Pedidos**: filtro por estado, búsqueda por número y cambio de estado (`pendiente_pago → pagado → enviado`, o `cancelado`, que devuelve el stock).
+- **Mensajes** y **Suscriptores**: listas paginadas y exportación a CSV.
 
-1. Creá la cuenta normalmente desde el sitio (Crear cuenta) y confirmá el email.
+Sin el rol de admin, `/admin` muestra la página 404, como si no existiera, y el código del panel ni se descarga.
+
+### Cómo ver el panel
+
+El panel no es público y este repo no incluye credenciales. Para verlo podés:
+
+- mirar el [video del recorrido](docs/screenshots/panel-demo.webm) y las capturas de [`docs/screenshots/`](docs/screenshots/), generados con datos de prueba;
+- pedirme acceso por [GitHub](https://github.com/JuanTrezza).
+
+### Crear un admin en tu propio proyecto
+
+1. Creá la cuenta desde el sitio y confirmá el email.
 2. En el SQL Editor:
 
    ```sql
@@ -164,45 +202,10 @@ el claim de admin, `/admin` muestra la página 404, como si no existiera.
    where email = 'tu-email@ejemplo.com';
    ```
 
-3. **Cerrá sesión y volvé a entrar.** El rol viaja dentro del JWT y el token que ya tenías no lo
-   tiene. Para quitarlo: `set raw_app_meta_data = raw_app_meta_data - 'role'`.
+3. Cerrá sesión y volvé a entrar: el rol viaja dentro del JWT y el token anterior no lo tiene.
 
-### Por qué el rol va en `app_metadata`
+## Roadmap
 
-`user_metadata` lo puede editar el propio usuario con `supabase.auth.updateUser()`; si el rol
-estuviera ahí, cualquiera podría hacerse admin. `app_metadata` solo se escribe con la
-`service_role` o desde SQL. Supabase lo copia al JWT, así que RLS lo lee sin consultar tablas:
-`private.is_admin()` hace `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'`.
-
-`is_admin()` vive en el schema `private`. Las políticas se evalúan con el rol de quien consulta, por
-eso `anon` y `authenticated` tienen `USAGE` en `private` y `EXECUTE` en esa función, y en ninguna
-otra. No queda expuesta por la API porque la Data API solo publica los schemas de *Exposed schemas*
-(`public`): no existe `/rpc/is_admin`.
-
-El chequeo del front (`isAdminUser`) es solo para la interfaz. Lo que el admin puede hacer de verdad
-lo deciden los `GRANT` a `authenticated` más las políticas RLS con `is_admin()`: un usuario común
-tiene el mismo `GRANT`, pero ninguna política lo deja escribir.
-
-### Qué puede hacer
-
-- **Resumen** (`admin_dashboard()`, calculado en la base): ventas y pedidos del mes (solo pagados y
-  enviados), pendientes de pago, los 5 más vendidos del mes y las variantes con stock ≤ 2.
-- **Productos**: búsqueda y filtro activo / inactivo; alta y edición de los datos, con slug automático
-  y precios en pesos que se guardan en centavos. También colores (con color picker), la grilla de
-  stock color × talle y las fotos por color: subir, ordenar, cambiar la vista y borrar. Desactivar o
-  borrar pide confirmación. Borrar un producto, un color o una foto también borra los archivos de
-  Storage.
-- **Pedidos**: filtro por estado, búsqueda por número y cambio de estado con
-  `admin_set_order_status`. Las transiciones válidas son `pendiente_pago → pagado → enviado`, y
-  `pendiente_pago` o `pagado → cancelado`. Las valida el trigger `orders_status_change`, que también
-  devuelve el stock al cancelar, venga el cambio de donde venga.
-- **Mensajes** y **Suscriptores**: listas paginadas; los suscriptores se exportan a CSV.
-
-### Fotos
-
-Las fotos nuevas van al bucket público `product-images`: 5 MB como máximo, JPEG, WebP o PNG. Solo un
-admin puede subir, reemplazar o borrar (políticas sobre `storage.objects`), y se leen por la URL
-pública. Antes de subir, el navegador las achica a 1600 px de alto como máximo y las convierte a WebP
-con `canvas` (JPEG si el navegador no codifica WebP), y guarda el ancho y el alto reales.
-`product_images.source` distingue las fotos estáticas del repo (`public/images`, las 16 originales)
-de las de Storage: el front arma la URL según el origen.
+- **Mercado Pago**: Checkout Pro desde una Edge Function, con un webhook que valide la firma y sea el único camino a `pagado`.
+- **Emails transaccionales**: confirmación de pedido, aviso de envío y respuesta a contacto.
+- **Dominio propio con `BrowserRouter` y prerender**, para resolver los límites de SEO y mejorar el rendimiento.

@@ -30,7 +30,7 @@ export function AccountPage() {
 
   return (
     <div className="container-site pb-20 pt-8 md:pt-12">
-      <Seo title="Mi cuenta" />
+      <Seo title="Mi cuenta" description="Tus datos y direcciones en Unimoda." noindex />
       <p className="eyebrow">Tu cuenta</p>
       <h1 className="mt-2 font-serif text-4xl md:text-5xl">Mi cuenta</h1>
       <div className="mt-6">

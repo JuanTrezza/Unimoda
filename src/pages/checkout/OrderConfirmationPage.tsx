@@ -32,7 +32,7 @@ export function OrderConfirmationPage() {
 
   return (
     <div className="container-site pb-20 pt-8 md:pt-12">
-      <Seo title="Pedido confirmado" />
+      <Seo title="Pedido confirmado" description="Recibimos tu pedido en Unimoda." noindex />
       <div className="flex flex-col items-start">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-terracota text-white">
           <Icon name="check" />

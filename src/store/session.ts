@@ -1,6 +1,6 @@
 import type { Session, User } from '@supabase/supabase-js'
 import { create } from 'zustand'
-import { supabase } from '../lib/supabase'
+import { getSupabase } from '../lib/getSupabase'
 
 interface SessionState {
   /** 'loading' hasta que auth-js lee la sesión guardada (o la del link del email) */
@@ -26,11 +26,20 @@ export function listenToSession() {
   listening = true
   // INITIAL_SESSION llega apenas termina la inicialización, después cada SIGNED_IN / SIGNED_OUT / TOKEN_REFRESHED.
   // No llamar a supabase.auth dentro del callback (auth-js lo desaconseja: puede trabarse).
-  supabase.auth.onAuthStateChange((_event, session) => {
-    useSession.setState({
-      status: session ? 'authenticated' : 'anonymous',
-      session,
-      user: session?.user ?? null,
-    })
-  })
+  getSupabase().then(
+    (supabase) => {
+      supabase.auth.onAuthStateChange((_event, session) => {
+        useSession.setState({
+          status: session ? 'authenticated' : 'anonymous',
+          session,
+          user: session?.user ?? null,
+        })
+      })
+    },
+    // Sin conexión al cargar el chunk, o faltan las variables de entorno: la tienda sigue sin sesión
+    (error: unknown) => {
+      console.error(error)
+      useSession.setState({ status: 'anonymous' })
+    },
+  )
 }

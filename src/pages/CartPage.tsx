@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom'
 import { Seo } from '../components/Seo'
 import { CartLineItem } from '../components/cart/CartLineItem'
 import { FreeShippingBar } from '../components/cart/FreeShippingBar'
+import { ErrorState } from '../components/ui/ErrorState'
 import { Icon } from '../components/ui/Icon'
 import { useCartLines } from '../hooks/useCartLines'
 import { formatPrice, installment, INSTALLMENTS } from '../lib/format'
 
 export function CartPage() {
-  const { lines, count, subtotal, shipping, total, loading } = useCartLines()
+  const { lines, count, subtotal, shipping, total, loading, error, retry } = useCartLines()
 
   return (
     <div className="container-site pb-20 pt-8 md:pt-12">
@@ -19,6 +20,10 @@ export function CartPage() {
 
       {loading ? (
         <div className="mt-10 h-40 animate-pulse rounded-sm bg-crema-200" aria-busy="true" />
+      ) : error ? (
+        <div className="mt-10">
+          <ErrorState what="tu carrito" onRetry={retry} />
+        </div>
       ) : lines.length === 0 ? (
         <div className="mt-10 flex flex-col items-center rounded-sm bg-crema-200/60 px-6 py-20 text-center">
           <p className="font-serif text-3xl">Tu carrito está vacío</p>
